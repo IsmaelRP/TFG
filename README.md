@@ -1,2 +1,0 @@
-# FoodCal
-Proyecto final CFGS
