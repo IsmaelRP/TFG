@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navigation_graph"
+    app:startDestination="@id/fragmentStart">
+
+    <fragment
+        android:id="@+id/fragmentStart"
+        android:name="project.tfg.ecgscan.ui.start.StartFragment"
+        android:label="fragment_start"
+        tools:layout="@layout/fragment_start" >
+        <action
+            android:id="@+id/desStartToLogin"
+            app:destination="@id/fragmentLogin"
+            app:enterAnim="@android:anim/slide_in_left"
+            app:exitAnim="@android:anim/fade_out" />
+        <action
+            android:id="@+id/desStartToRegister"
+            app:destination="@id/fragmentRegister"
+            app:enterAnim="@android:anim/slide_in_left"
+            app:exitAnim="@android:anim/fade_out" />
+        <action
+            android:id="@+id/desStartToAbout"
+            app:destination="@id/fragmentAbout"
+            app:enterAnim="@android:anim/slide_in_left"
+            app:exitAnim="@android:anim/fade_out" />
+    </fragment>
+    <fragment
+        android:id="@+id/fragmentLogin"
+        android:name="project.tfg.ecgscan.ui.login.LoginFragment"
+        android:label="LoginFragment" />
+    <fragment
+        android:id="@+id/fragmentRegister"
+        android:name="project.tfg.ecgscan.ui.register.RegisterFragment"
+        android:label="LoginFragment" />
+    <fragment
+        android:id="@+id/fragmentAbout"
+        android:name="project.tfg.ecgscan.ui.about.AboutFragment"
+        android:label="LoginFragment" />
+</navigation>
