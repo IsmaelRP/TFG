@@ -62,6 +62,7 @@
         android:id="@+id/btnLogin"
         android:layout_width="@dimen/btnWidthStart"
         android:layout_height="@dimen/btnHeightStart"
+        android:text="LOG IN"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

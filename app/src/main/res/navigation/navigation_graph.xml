@@ -8,7 +8,7 @@
     <fragment
         android:id="@+id/fragmentStart"
         android:name="project.tfg.ecgscan.ui.start.StartFragment"
-        android:label="fragment_start"
+        android:label="ECGScan"
         tools:layout="@layout/fragment_start" >
         <action
             android:id="@+id/desStartToLogin"
@@ -29,13 +29,24 @@
     <fragment
         android:id="@+id/fragmentLogin"
         android:name="project.tfg.ecgscan.ui.login.LoginFragment"
-        android:label="LoginFragment" />
+        android:label="Login" >
+        <action
+            android:id="@+id/desLoginToSecond"
+            app:destination="@id/secondActivity"
+            app:popUpTo="@navigation/main_graph"
+            app:launchSingleTop="true"
+            app:popUpToInclusive="true"/>
+    </fragment>
     <fragment
         android:id="@+id/fragmentRegister"
         android:name="project.tfg.ecgscan.ui.register.RegisterFragment"
-        android:label="LoginFragment" />
+        android:label="Register" />
     <fragment
         android:id="@+id/fragmentAbout"
         android:name="project.tfg.ecgscan.ui.about.AboutFragment"
-        android:label="LoginFragment" />
+        android:label="About" />
+    <activity
+        android:id="@+id/secondActivity"
+        android:name="project.tfg.ecgscan.ui.secondActivity.SecondActivity"
+        android:label="SecondActivity" />
 </navigation>

@@ -23,6 +23,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".ui.secondActivity.SecondActivity"
+            android:theme="@style/Theme.ECGScan"/>
     </application>
 
 </manifest>
