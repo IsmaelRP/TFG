@@ -1,5 +1,6 @@
 package project.tfg.ecgscan.ui.mainActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
@@ -11,11 +12,18 @@ import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
 
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
 import java.util.Objects;
 
 import project.tfg.ecgscan.R;
+import project.tfg.ecgscan.ui.secondActivity.SecondActivity;
 
 public class MainActivity extends AppCompatActivity {
+
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -23,8 +31,23 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         setupViews();
-        setupNavigationGraph();
+    }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        // Initialize Firebase Auth
+        FirebaseApp.initializeApp(this);
+        mAuth = FirebaseAuth.getInstance();
+
+        // Check if user is signed in (non-null) and update UI accordingly.
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if(currentUser != null){    //  Logged
+            startActivity(new Intent(MainActivity.this, SecondActivity.class));
+            finish();
+        }else{      //  Not logged
+            setupNavigationGraph(R.navigation.navigation_graph, R.id.fragmentStart);
+        }
     }
 
 
@@ -34,16 +57,17 @@ public class MainActivity extends AppCompatActivity {
                 (controller, destination, arguments) -> setTitle(destination.getLabel()));
     }
 
-    private void setupNavigationGraph() {
+    private void setupNavigationGraph(int graphId, int initialFragmentId) {
         int startDestinationResId;
         NavHostFragment navHost =
                 (NavHostFragment) getSupportFragmentManager().findFragmentById(
                         R.id.nav_host_fragment);
+
         NavController navController = Objects.requireNonNull(navHost).getNavController();
         NavInflater navInflater = navController.getNavInflater();
-        NavGraph navGraph = navInflater.inflate(R.navigation.navigation_graph);
+        NavGraph navGraph = navInflater.inflate(graphId);
 
-        startDestinationResId = R.id.fragmentStart;
+        startDestinationResId = initialFragmentId;
 
         navGraph.setStartDestination(startDestinationResId);
 

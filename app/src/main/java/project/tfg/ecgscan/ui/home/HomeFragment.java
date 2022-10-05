@@ -16,6 +16,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.google.firebase.auth.FirebaseAuth;
+
 import java.io.IOException;
 
 import project.tfg.ecgscan.databinding.FragmentHomeBinding;
@@ -45,6 +47,7 @@ public class HomeFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         setupViews();
+        FirebaseAuth.getInstance().signOut();   //TODO: CUIDADO BORRAR PELIGRO
     }
 
     private void setupViews() {

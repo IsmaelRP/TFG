@@ -48,11 +48,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/txtPassword_hint"
-            android:imeOptions="actionGo"
+            android:imeOptions="actionDone"
             android:inputType="textPassword"
             android:maxLength="45"
-            android:nextFocusDown="@+id/txtPassword"
-            android:nextFocusForward="@+id/txtPassword"
+            android:nextFocusDown="@+id/btnLogin"
+            android:nextFocusForward="@+id/btnLogin"
             android:textColor="@color/black"
             tools:ignore="TouchTargetSizeCheck" />
 
