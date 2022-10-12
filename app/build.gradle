@@ -20,7 +20,7 @@ android {
 
     defaultConfig {
         applicationId "project.tfg.ecgscan"
-        minSdk 21
+        minSdk 26
         targetSdk 32
         versionCode 1
         versionName "1.0"
@@ -45,7 +45,12 @@ android {
 
 dependencies {
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'com.google.firebase:firebase-storage:20.0.1'
     def nav_version = "2.5.2"
+
+    // Tensorflow Lite dependencies
+    implementation 'org.tensorflow:tensorflow-lite-task-vision-play-services:0.4.2'
+    implementation 'com.google.android.gms:play-services-tflite-gpu:16.1.0'
 
     // Java language implementation
     implementation "androidx.navigation:navigation-fragment:$nav_version"
@@ -54,6 +59,9 @@ dependencies {
     implementation platform('com.google.firebase:firebase-bom:30.4.1')
     implementation 'com.google.firebase:firebase-auth'
     implementation 'com.google.firebase:firebase-analytics'
+
+    implementation 'androidx.lifecycle:lifecycle-extensions:2.1.0-alpha04'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel:2.1.0-alpha04'
 
     implementation 'androidx.appcompat:appcompat:1.4.1'
     implementation 'com.google.android.material:material:1.5.0'

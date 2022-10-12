@@ -3,4 +3,9 @@
 
     <string name="txtEmail_hint">Email Address</string>
     <string name="txtPassword_hint">Password</string>
+    <string name="logout">Log out</string>
+    <string name="image_list">Electrocardiogram\'s list</string>
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
+    <string name="listFragmentTitle">ListFragment</string>
 </resources>

@@ -5,9 +5,27 @@
     android:id="@+id/main_graph"
     app:startDestination="@id/homeFragment">
 
+    <action
+        android:id="@+id/global_to_list"
+        app:destination="@id/listFragment"
+        app:enterAnim="@android:anim/slide_in_left"
+        app:exitAnim="@android:anim/fade_out" />
+
     <fragment
         android:id="@+id/homeFragment"
         android:name="project.tfg.ecgscan.ui.home.HomeFragment"
         android:label="HomeFragment"
-        tools:layout="@layout/fragment_home"/>
+        tools:layout="@layout/fragment_home">
+        <action
+            android:id="@+id/desHomeToList"
+            app:destination="@id/listFragment"
+            app:enterAnim="@android:anim/slide_in_left"
+            app:exitAnim="@android:anim/fade_out"/>
+    </fragment>
+    <fragment
+        android:id="@+id/listFragment"
+        android:name="project.tfg.ecgscan.ui.list.ListFragment"
+        android:label="@string/listFragmentTitle"
+        tools:layout="@layout/fragment_list"/>
+
 </navigation>

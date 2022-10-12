@@ -47,10 +47,6 @@ public class RegisterFragment extends Fragment {
         b.btnRegister.setOnClickListener(v -> registerWithFirebase(b.txtEmail.getText().toString(), b.txtPassword.getText().toString()));
     }
 
-    private void register() {
-
-    }
-
     private void setupFirebase() {
         // Initialize Firebase Auth
         mAuth = FirebaseAuth.getInstance();
