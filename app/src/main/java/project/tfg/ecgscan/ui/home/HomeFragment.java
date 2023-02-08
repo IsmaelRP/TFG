@@ -49,6 +49,7 @@ public class HomeFragment extends Fragment {
     private Bitmap image;
     private SecondActivityViewModel secondVM;
     private NavController navController;
+    private boolean cloud;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -142,7 +143,15 @@ public class HomeFragment extends Fragment {
 
     private void launchYesNoDialog(Bitmap image) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        builder.setMessage("Do you want to upload the image to the cloud?")
+        String msg;
+        cloud = secondVM.getPreferencesCloud().getValue().peekContent();
+
+        if (cloud){
+            msg = "Do you want to upload the image to the cloud?";
+        }else{
+            msg = "Do you want to save the image on your phone?";
+        }
+        builder.setMessage(msg)
                 .setPositiveButton("Yes", dialogClickListener)
                 .setNegativeButton("No", dialogClickListener)
                 .show();
@@ -156,10 +165,23 @@ public class HomeFragment extends Fragment {
         input.setInputType(InputType.TYPE_CLASS_TEXT);
         builder.setView(input);
 
-        builder.setPositiveButton("Save", (dialog, which) -> uploadImageToFirebase(input.getText().toString()));
+        builder.setPositiveButton("Save", (dialog, which) -> saveImage(input.getText().toString()));
         builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
 
         builder.show();
+    }
+
+    private void saveImage(String filename){
+
+        if (cloud){
+            uploadImageToFirebase(filename);
+        }else{
+            loadToLocal(filename);
+        }
+    }
+
+    private void loadToLocal(String filename) {
+        //TODO: almacenar imagen en local
     }
 
     private void uploadImageToFirebase(String fileName) {

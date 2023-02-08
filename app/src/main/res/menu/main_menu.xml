@@ -6,6 +6,12 @@
         android:id="@+id/menu_logout"
         android:icon="@drawable/ic_baseline_logout_24"
         android:title="@string/logout"
-        app:showAsAction="always" />
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/menu_settings"
+        android:icon="@drawable/ic_baseline_settings_24"
+        android:title="@string/settings"
+        app:showAsAction="ifRoom" />
 
 </menu>

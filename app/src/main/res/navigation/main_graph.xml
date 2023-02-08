@@ -28,4 +28,10 @@
         android:label="@string/listFragmentTitle"
         tools:layout="@layout/fragment_list"/>
 
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="project.tfg.ecgscan.ui.settings.SettingsFragment"
+        android:label="@string/settingsFragmentTitle"
+        />
+
 </navigation>

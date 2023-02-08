@@ -1,7 +1,5 @@
 package project.tfg.ecgscan.ui.secondActivity;
 
-import android.view.View;
-
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
@@ -10,6 +8,7 @@ import project.tfg.ecgscan.data.Event;
 public class SecondActivityViewModel extends ViewModel {
 
     private final MutableLiveData<Event<Boolean>> navigateToList = new MutableLiveData<>();
+    private final MutableLiveData<Event<Boolean>> preferencesCloud = new MutableLiveData<>();
 
     public MutableLiveData<Event<Boolean>> getNavigateToList() {
         return navigateToList;
@@ -19,4 +18,11 @@ public class SecondActivityViewModel extends ViewModel {
         this.navigateToList.setValue(new Event<>(b));
     }
 
+    public MutableLiveData<Event<Boolean>> getPreferencesCloud() {
+        return preferencesCloud;
+    }
+
+    public void setPreferencesCloud(Boolean b) {
+        this.preferencesCloud.setValue(new Event<>(b));
+    }
 }

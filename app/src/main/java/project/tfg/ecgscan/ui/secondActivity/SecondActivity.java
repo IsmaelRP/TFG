@@ -1,6 +1,7 @@
 package project.tfg.ecgscan.ui.secondActivity;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -19,6 +20,7 @@ import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
+import androidx.preference.PreferenceManager;
 
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
@@ -35,6 +37,7 @@ public class SecondActivity extends AppCompatActivity {
     private NavigationView navigationView;
     private DrawerLayout drawerLayout;
     private SecondActivityViewModel secondActivityViewModel;
+    private SharedPreferences preferences;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -42,8 +45,19 @@ public class SecondActivity extends AppCompatActivity {
         setContentView(R.layout.activity_second);
         setupViews();
         setupNavigationGraph();
+        setupPreferences();
 
     }
+
+    private void setupPreferences() {
+        preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        if (preferences != null){
+            secondActivityViewModel.setPreferencesCloud(preferences.getBoolean(getString(R.string.preferencesCloud), false));
+        }else{
+            secondActivityViewModel.setPreferencesCloud(false);
+        }
+    }
+
 
 
     private void setupViews() {
@@ -60,7 +74,7 @@ public class SecondActivity extends AppCompatActivity {
         navController.addOnDestinationChangedListener(
                 (controller, destination, arguments) -> setTitle(destination.getLabel()));
 
-        appBarConfiguration = new AppBarConfiguration.Builder(R.id.homeFragment, R.id.listFragment).setDrawerLayout(drawerLayout).build();
+        appBarConfiguration = new AppBarConfiguration.Builder(R.id.homeFragment, R.id.listFragment, R.id.settingsFragment).setDrawerLayout(drawerLayout).build();
 
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
 
@@ -111,14 +125,22 @@ public class SecondActivity extends AppCompatActivity {
             case R.id.menu_logout:
                 logout();
                 break;
+            case R.id.menu_settings:
+                openSettings();
+                break;
             default:
                 if(drawerLayout.isDrawerOpen(GravityCompat.START)){
                     drawerLayout.closeDrawer(GravityCompat.END);
                 }else{
                     drawerLayout.openDrawer(GravityCompat.START);
                 }
+                break;
         }
         return true;
+    }
+
+    private void openSettings() {
+        navController.navigate(R.id.settingsFragment);
     }
 
     private void logout(){
