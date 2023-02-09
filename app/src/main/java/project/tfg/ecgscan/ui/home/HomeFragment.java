@@ -8,7 +8,6 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.InputType;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,8 +24,6 @@ import androidx.navigation.Navigation;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.FirebaseApp;
-import com.google.firebase.FirebaseOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageMetadata;
@@ -50,6 +47,8 @@ public class HomeFragment extends Fragment {
     private SecondActivityViewModel secondVM;
     private NavController navController;
     private boolean cloud;
+
+    private FirebaseStorage storage;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -78,14 +77,21 @@ public class HomeFragment extends Fragment {
     private void setupViews(View view) {
         navController = Objects.requireNonNull(Navigation.findNavController(view));
         secondVM = ViewModelProviders.of(requireActivity()).get(SecondActivityViewModel.class);
-        secondVM.getNavigateToList().observe(getViewLifecycleOwner(), this::navigateToList);
+        secondVM.getNavigateToList().observe(getViewLifecycleOwner(), this::navigateToTabs);
         b.btnScan.setOnClickListener(v -> dispatchTakePictureIntent(MediaStore.ACTION_IMAGE_CAPTURE));
         b.btnUpload.setOnClickListener(v -> dispatchSelectPictureIntent());
+
+        //updateStorage(secondVM.getFirebaseStorage().getValue());
+        secondVM.getFirebaseStorage().observe(getViewLifecycleOwner(), this::updateStorage);
     }
 
-    private void navigateToList(Event<Boolean> booleanEvent) {
+    private void updateStorage(Event<FirebaseStorage> firebaseStorageEvent) {
+        storage = firebaseStorageEvent.peekContent();
+    }
+
+    private void navigateToTabs(Event<Boolean> booleanEvent) {
         if (booleanEvent.getContentIfNotHandled() != null){
-            navController.navigate(HomeFragmentDirections.desHomeToList());
+            navController.navigate(HomeFragmentDirections.desHomeToTabs());
         }
     }
 
@@ -185,9 +191,11 @@ public class HomeFragment extends Fragment {
     }
 
     private void uploadImageToFirebase(String fileName) {
-        FirebaseStorage storage = configureFirebase("ecgscan-240b9", "1:784049752308:android:ab77ff02b03aaf5d9ab6a1", "AIzaSyDgQU3c-aj-U-dlMeUa9HZa2NMCY7A5Rb4", "imgs/hola/");
-
         StorageReference storageRef = storage.getReference("imgs/" + FirebaseAuth.getInstance().getCurrentUser().getUid() + "/" + fileName);
+
+        secondVM.setFirebaseStorage(storage);
+        secondVM.setStorageReference(storageRef);
+
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         image.compress(Bitmap.CompressFormat.JPEG, 100, baos);
         byte[] data = baos.toByteArray();
@@ -215,23 +223,5 @@ public class HomeFragment extends Fragment {
 
     }
 
-    private FirebaseStorage configureFirebase(String projectID, String applicationID, String APIkey, String databaseURL) {
-        FirebaseOptions options = new FirebaseOptions.Builder()
-                .setProjectId(projectID)
-                .setApplicationId(applicationID)
-                .setApiKey(APIkey)
-                .setDatabaseUrl(databaseURL)
-                .setStorageBucket("ecgscan-240b9.appspot.com")
-                .build();
-
-        try {
-            FirebaseApp.initializeApp(requireContext(), options);
-        } catch (Exception e) {
-            Log.d("Exception", e.toString());
-        }
-
-        return FirebaseStorage.getInstance();
-
-    }
 
 }

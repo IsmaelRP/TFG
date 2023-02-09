@@ -20,6 +20,12 @@
             android:id="@+id/desHomeToList"
             app:destination="@id/listFragment"
             app:enterAnim="@android:anim/slide_in_left"
+            app:exitAnim="@android:anim/fade_out"
+            />
+        <action
+            android:id="@+id/desHomeToTabs"
+            app:destination="@id/tabsListFragment"
+            app:enterAnim="@android:anim/slide_in_left"
             app:exitAnim="@android:anim/fade_out"/>
     </fragment>
     <fragment
@@ -33,5 +39,10 @@
         android:name="project.tfg.ecgscan.ui.settings.SettingsFragment"
         android:label="@string/settingsFragmentTitle"
         />
+    <fragment
+        android:id="@+id/tabsListFragment"
+        android:name="project.tfg.ecgscan.ui.tabsList.TabsListFragment"
+        android:label="TabsListFragment"
+        tools:layout="@layout/fragment_tabslist"/>
 
 </navigation>

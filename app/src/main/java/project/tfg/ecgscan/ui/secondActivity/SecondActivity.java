@@ -3,6 +3,7 @@ package project.tfg.ecgscan.ui.secondActivity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -23,7 +24,11 @@ import androidx.navigation.ui.NavigationUI;
 import androidx.preference.PreferenceManager;
 
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.FirebaseOptions;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.Objects;
 
@@ -38,6 +43,8 @@ public class SecondActivity extends AppCompatActivity {
     private DrawerLayout drawerLayout;
     private SecondActivityViewModel secondActivityViewModel;
     private SharedPreferences preferences;
+    private FirebaseStorage storage;
+    private StorageReference storageRef;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -46,6 +53,34 @@ public class SecondActivity extends AppCompatActivity {
         setupViews();
         setupNavigationGraph();
         setupPreferences();
+        setupFirebaseStorage();
+
+    }
+
+    private void setupFirebaseStorage() {
+        storage = configureFirebase("ecgscan-240b9", "1:784049752308:android:ab77ff02b03aaf5d9ab6a1", "AIzaSyDgQU3c-aj-U-dlMeUa9HZa2NMCY7A5Rb4", "imgs/" + FirebaseAuth.getInstance().getCurrentUser().getUid());
+        storageRef = storage.getReference("imgs/" + FirebaseAuth.getInstance().getCurrentUser().getUid() + "/");
+
+        secondActivityViewModel.setFirebaseStorage(storage);
+        secondActivityViewModel.setStorageReference(storageRef);
+    }
+
+    private FirebaseStorage configureFirebase(String projectID, String applicationID, String APIkey, String databaseURL) {
+        FirebaseOptions options = new FirebaseOptions.Builder()
+                .setProjectId(projectID)
+                .setApplicationId(applicationID)
+                .setApiKey(APIkey)
+                .setDatabaseUrl(databaseURL)
+                .setStorageBucket("ecgscan-240b9.appspot.com")
+                .build();
+
+        try {
+            FirebaseApp.initializeApp(this, options);
+        } catch (Exception e) {
+            Log.d("Exception", e.toString());
+        }
+
+        return FirebaseStorage.getInstance();
 
     }
 
@@ -63,7 +98,7 @@ public class SecondActivity extends AppCompatActivity {
     private void setupViews() {
         secondActivityViewModel = ViewModelProviders.of(this, new SecondActivityViewModelFactory()).get(SecondActivityViewModel.class);
 
-        Toolbar myToolbar = (Toolbar) Objects.requireNonNull(findViewById(R.id.my_toolbar));
+        Toolbar myToolbar = Objects.requireNonNull(findViewById(R.id.my_toolbar));
 
         setSupportActionBar(myToolbar);
         navController = Navigation.findNavController(this, R.id.nav_second_host_fragment);
@@ -74,7 +109,7 @@ public class SecondActivity extends AppCompatActivity {
         navController.addOnDestinationChangedListener(
                 (controller, destination, arguments) -> setTitle(destination.getLabel()));
 
-        appBarConfiguration = new AppBarConfiguration.Builder(R.id.homeFragment, R.id.listFragment, R.id.settingsFragment).setDrawerLayout(drawerLayout).build();
+        appBarConfiguration = new AppBarConfiguration.Builder(R.id.homeFragment, R.id.listFragment, R.id.settingsFragment, R.id.tabsListFragment).setDrawerLayout(drawerLayout).build();
 
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
 
@@ -100,6 +135,15 @@ public class SecondActivity extends AppCompatActivity {
                 logout();
             } else if (item.getItemId() == R.id.item_list) {
                 if (!navController.getCurrentDestination().getDisplayName().contains("list")){      //  Hardcoded option
+                    String a = navController.getCurrentDestination().getRoute();
+                    drawerLayout.closeDrawer(GravityCompat.START);
+                    secondActivityViewModel.setNavigateToList(true);
+                }else{
+                    drawerLayout.closeDrawer(GravityCompat.START);
+                }
+
+            } else if (item.getItemId() == R.id.item_home) {
+                if (!navController.getCurrentDestination().getDisplayName().contains("home")){      //  Hardcoded option
                     String a = navController.getCurrentDestination().getRoute();
                     drawerLayout.closeDrawer(GravityCompat.START);
                     secondActivityViewModel.setNavigateToList(true);

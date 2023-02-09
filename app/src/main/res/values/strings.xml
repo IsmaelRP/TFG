@@ -11,4 +11,7 @@
     <string name="settings">Settings</string>
     <string name="settingsFragmentTitle">Settings</string>
     <string name="preferencesCloud">CLOUDPREF</string>
+    <string name="tabs_fragment_title">TituloTabs</string>
+    <string name="image_home">Home</string>
+    <string name="emptyCloudListText">There aren\'t electros yet</string>
 </resources>
