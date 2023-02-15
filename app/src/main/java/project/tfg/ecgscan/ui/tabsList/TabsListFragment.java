@@ -102,51 +102,6 @@ public class TabsListFragment extends Fragment {
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         inflater.inflate(R.menu.tabs_menu, menu);
 
-        /*
-        MenuItem mnuSearch = menu.findItem(R.id.tabs);
-        SearchView searchView = (SearchView) mnuSearch.getActionView();
-
-        searchView.setMaxWidth(Integer.MAX_VALUE);
-        searchView.setQueryHint(getString(R.string.mnuSearch_hint));
-        //searchView.setIconifiedByDefault(false);
-        // In order to save state.
-        mnuSearch.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
-            @Override
-            public boolean onMenuItemActionExpand(MenuItem item) {
-                // Make toolbar not scrollable.
-                changeToolbarScrollBehavior(false);
-                return true;
-            }
-
-            @Override
-            public boolean onMenuItemActionCollapse(MenuItem item) {
-                changeToolbarScrollBehavior(true);
-                return true;
-            }
-        });
-        // listening to search query text change
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String query) {
-                // filter adapter when text is changed
-                if (mainVM.getContainerAdapter().getValue() != null) {
-                    mainVM.getContainerAdapter().getValue().getFilter().filter(query);
-                }
-
-                if (mainVM.getNotificationAdapter().getValue() != null) {
-                    mainVM.getNotificationAdapter().getValue().getFilter().filter(query);
-                }
-
-                return false;
-            }
-        });
-
-        */
         super.onCreateOptionsMenu(menu, inflater);
     }
 

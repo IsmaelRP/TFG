@@ -9,6 +9,8 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.InputType;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
@@ -36,6 +38,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
+import project.tfg.ecgscan.R;
 import project.tfg.ecgscan.data.Event;
 import project.tfg.ecgscan.databinding.FragmentHomeBinding;
 import project.tfg.ecgscan.ui.secondActivity.SecondActivityViewModel;
@@ -55,6 +58,11 @@ public class HomeFragment extends Fragment {
         super.onCreate(savedInstanceState);
     }
 
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        inflater.inflate(R.menu.main_menu, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -172,9 +180,15 @@ public class HomeFragment extends Fragment {
         builder.setView(input);
 
         builder.setPositiveButton("Save", (dialog, which) -> saveImage(input.getText().toString()));
-        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
+        builder.setNegativeButton("Cancel", (dialog, which) -> diagnoseImg(dialog));
 
         builder.show();
+    }
+
+    private void diagnoseImg(DialogInterface dialog) {
+        //TODO: llamar al viewmodel con la img y mostrar diagnóstico en la pantalla home de manera "temporal"
+        // image
+        dialog.cancel();
     }
 
     private void saveImage(String filename){
@@ -194,7 +208,6 @@ public class HomeFragment extends Fragment {
         StorageReference storageRef = storage.getReference("imgs/" + FirebaseAuth.getInstance().getCurrentUser().getUid() + "/" + fileName);
 
         secondVM.setFirebaseStorage(storage);
-        secondVM.setStorageReference(storageRef);
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         image.compress(Bitmap.CompressFormat.JPEG, 100, baos);

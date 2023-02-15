@@ -14,4 +14,6 @@
     <string name="tabs_fragment_title">TituloTabs</string>
     <string name="image_home">Home</string>
     <string name="emptyCloudListText">There aren\'t electros yet</string>
+    <string name="search">Search</string>
+    <string name="mnuSearch_hint">Type...</string>
 </resources>

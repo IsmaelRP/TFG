@@ -32,7 +32,7 @@
         android:id="@+id/listFragment"
         android:name="project.tfg.ecgscan.ui.list.ListFragment"
         android:label="@string/listFragmentTitle"
-        tools:layout="@layout/fragment_list"/>
+        tools:layout="@layout/fragment_list" />
 
     <fragment
         android:id="@+id/settingsFragment"

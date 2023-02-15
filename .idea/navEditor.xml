@@ -24,12 +24,12 @@
                         </option>
                         <option name="myPositions">
                           <map>
-                            <entry key="action_homeFragment_to_tabsListFragment">
+                            <entry key="desHomeToList">
                               <value>
                                 <LayoutPositions />
                               </value>
                             </entry>
-                            <entry key="desHomeToList">
+                            <entry key="desHomeToTabs">
                               <value>
                                 <LayoutPositions />
                               </value>
@@ -68,8 +68,8 @@
                       <LayoutPositions>
                         <option name="myPosition">
                           <Point>
-                            <option name="x" value="500" />
-                            <option name="y" value="368" />
+                            <option name="x" value="495" />
+                            <option name="y" value="511" />
                           </Point>
                         </option>
                       </LayoutPositions>

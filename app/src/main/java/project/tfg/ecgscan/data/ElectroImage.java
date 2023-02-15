@@ -2,18 +2,21 @@ package project.tfg.ecgscan.data;
 
 import android.graphics.Bitmap;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 public class ElectroImage implements Comparable<ElectroImage>{
 
     private Bitmap image;
     private String name;
+    private String date;
     private long individualId;
-    private static long id = 1;
+    private static AtomicLong id = new AtomicLong(1);
 
-    public ElectroImage(Bitmap image, String name) {
+    public ElectroImage(Bitmap image, String name, String date) {
         this.image = image;
         this.name = name;
-        individualId = id;
-        id ++;
+        this.date = date;
+        individualId = id.getAndIncrement();
     }
 
 
@@ -39,6 +42,14 @@ public class ElectroImage implements Comparable<ElectroImage>{
 
     public void setId(long id) {
         this.individualId = id;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
     }
 
 

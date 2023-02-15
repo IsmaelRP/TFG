@@ -3,6 +3,8 @@ package project.tfg.ecgscan.ui.list;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -12,18 +14,23 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.navigation.NavController;
 import androidx.recyclerview.widget.DefaultItemAnimator;
-import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.ListResult;
+import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.StorageReference;
 
-import java.util.ArrayList;
+import java.text.SimpleDateFormat;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
+import project.tfg.ecgscan.R;
 import project.tfg.ecgscan.data.ElectroImage;
 import project.tfg.ecgscan.data.Event;
 import project.tfg.ecgscan.databinding.FragmentListBinding;
@@ -41,8 +48,11 @@ public class ListFragment extends Fragment {
     private final long ONE_MEGABYTE = 1024 * 1024;
     private ListFragmentAdapter listAdapter;
 
+    private int aux = 0;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
+        setHasOptionsMenu(true);
         super.onCreate(savedInstanceState);
     }
 
@@ -54,13 +64,18 @@ public class ListFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         setupViews(view);
-        loadItems();
-
-        //loadList();
+        secondVM.clearImages();
 
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        loadItems();
+    }
+
     private void loadItems() {
+        secondVM.clearImages();
         storageRef.listAll()
                 .addOnSuccessListener(new OnSuccessListener<ListResult>() {
                     @Override
@@ -70,13 +85,6 @@ public class ListFragment extends Fragment {
                             loadImage(item);
                         }
                     }
-
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        // Uh-oh, an error occurred!
-                    }
                 });
     }
 
@@ -84,18 +92,25 @@ public class ListFragment extends Fragment {
         item.getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
             @Override
             public void onSuccess(byte[] bytes) {
-                //TODO mandar imagen a recyclerview
 
-                ElectroImage e = new ElectroImage(BitmapFactory.decodeByteArray(bytes, 0, bytes.length), item.getName());
+                item.getMetadata().addOnSuccessListener(new OnSuccessListener<StorageMetadata>() {
+                    @Override
+                    public void onSuccess(StorageMetadata storageMetadata) {
+                        Date date = new Date(storageMetadata.getCreationTimeMillis());
+                        SimpleDateFormat df = new SimpleDateFormat("dd/MM/yy");
 
-                secondVM.addImage(e);
+                        ElectroImage img = new ElectroImage(BitmapFactory.decodeByteArray(bytes, 0, bytes.length), storageMetadata.getName(), df.format(date));
+                        secondVM.addImage(img);
 
-                /*Task<StorageMetadata> p = item.getMetadata();
-                p.addOnSuccessListener(storageMetadata -> {
-                    StorageMetadata xdwa = storageMetadata;
+                    }
+                }).addOnCompleteListener(new OnCompleteListener<StorageMetadata>() {
+                    @Override
+                    public void onComplete(@NonNull Task<StorageMetadata> task) {
+                        secondVM.setListElectros();
+                    }
                 });
 
-                 */
+
 
             }
         }).addOnFailureListener(new OnFailureListener() {
@@ -109,17 +124,22 @@ public class ListFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         b = FragmentListBinding.inflate(inflater, container, false);
+        setHasOptionsMenu(true);
         return b.getRoot();
     }
 
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_list, menu);
+
+        super.onCreateOptionsMenu(menu, inflater);
+    }
 
     private void setupViews(View view) {
         secondVM = ViewModelProviders.of(requireActivity()).get(SecondActivityViewModel.class);
 
         updateStorage(secondVM.getFirebaseStorage().getValue());
         updateStorageReference(secondVM.getStorageReference().getValue());
-
-        secondVM.setListElectros(new ArrayList<>());
 
         secondVM.getFirebaseStorage().observe(getViewLifecycleOwner(), this::updateStorage);
         secondVM.getStorageReference().observe(getViewLifecycleOwner(), this::updateStorageReference);
@@ -129,7 +149,7 @@ public class ListFragment extends Fragment {
         listAdapter = new ListFragmentAdapter(secondVM);
 
         b.lstList.setHasFixedSize(true);
-        b.lstList.setLayoutManager(new GridLayoutManager(requireContext(), 1));
+        b.lstList.setLayoutManager(new LinearLayoutManager(requireContext()));
         b.lstList.setItemAnimator(new DefaultItemAnimator());
         b.lstList.setAdapter(listAdapter);
     }
@@ -138,6 +158,7 @@ public class ListFragment extends Fragment {
         List<ElectroImage> list = listEvent.peekContent();
         Collections.sort(list);
         listAdapter.submitList(list);
+        listAdapter.notifyDataSetChanged();
         b.lblEmptyList.setVisibility(list.isEmpty() ? View.VISIBLE : View.INVISIBLE);
         //b.swRefreshFoods.setRefreshing(false);
     }

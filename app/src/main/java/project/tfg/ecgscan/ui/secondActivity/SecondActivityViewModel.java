@@ -1,8 +1,11 @@
 package project.tfg.ecgscan.ui.secondActivity;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -21,6 +24,8 @@ public class SecondActivityViewModel extends ViewModel {
     private final MutableLiveData<Event<StorageReference>> storageReference = new MutableLiveData<>();
 
     private final MutableLiveData<Event<List<ElectroImage>>> listElectros = new MutableLiveData<>();
+
+    private final ArrayList<ElectroImage> list = new ArrayList<>();
 
 
     public MutableLiveData<Event<Boolean>> getNavigateToList() {
@@ -62,16 +67,34 @@ public class SecondActivityViewModel extends ViewModel {
         return listElectros;
     }
 
-    public void setListElectros(List<ElectroImage> l) {
-        this.listElectros.setValue(new Event<>(l));
+    public void setListElectros() {
+        listElectros.postValue(new Event<>(list));
     }
 
     public void addImage(ElectroImage e){
+        list.add(e);
+    }
 
-        List<ElectroImage> aux = new ArrayList<>(listElectros.getValue().peekContent());
-        aux.add(e);
-        this.listElectros.postValue(new Event<>(aux));
+    public void clearImages(){
+        list.clear();
     }
 
 
+    public void deleteImgFromFirebase(String name) {
+        StorageReference photoRef = storageReference.getValue().peekContent().child(name);
+        String a = photoRef.getPath();
+
+        photoRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                list.removeIf(t -> t.getName() == name);
+                listElectros.postValue(new Event<>(list));
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                // Uh-oh, an error occurred!
+            }
+        });
+    }
 }

@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
 
 import androidx.annotation.Nullable;
@@ -109,6 +108,20 @@ public class SecondActivity extends AppCompatActivity {
         navController.addOnDestinationChangedListener(
                 (controller, destination, arguments) -> setTitle(destination.getLabel()));
 
+
+        navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
+            switch (destination.getId()) {
+                case R.id.listFragment:
+                    navigationView.getMenu().clear();
+                    navigationView.inflateMenu(R.menu.menu_list);
+                    break;
+                default:
+                    navigationView.getMenu().clear();
+                    navigationView.inflateMenu(R.menu.main_menu);
+                    break;
+            }
+        });
+
         appBarConfiguration = new AppBarConfiguration.Builder(R.id.homeFragment, R.id.listFragment, R.id.settingsFragment, R.id.tabsListFragment).setDrawerLayout(drawerLayout).build();
 
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
@@ -135,7 +148,6 @@ public class SecondActivity extends AppCompatActivity {
                 logout();
             } else if (item.getItemId() == R.id.item_list) {
                 if (!navController.getCurrentDestination().getDisplayName().contains("list")){      //  Hardcoded option
-                    String a = navController.getCurrentDestination().getRoute();
                     drawerLayout.closeDrawer(GravityCompat.START);
                     secondActivityViewModel.setNavigateToList(true);
                 }else{
@@ -144,9 +156,8 @@ public class SecondActivity extends AppCompatActivity {
 
             } else if (item.getItemId() == R.id.item_home) {
                 if (!navController.getCurrentDestination().getDisplayName().contains("home")){      //  Hardcoded option
-                    String a = navController.getCurrentDestination().getRoute();
+                    onBackPressed();
                     drawerLayout.closeDrawer(GravityCompat.START);
-                    secondActivityViewModel.setNavigateToList(true);
                 }else{
                     drawerLayout.closeDrawer(GravityCompat.START);
                 }
@@ -157,11 +168,6 @@ public class SecondActivity extends AppCompatActivity {
 
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main_menu, menu);
-        return true;
-    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -171,6 +177,8 @@ public class SecondActivity extends AppCompatActivity {
                 break;
             case R.id.menu_settings:
                 openSettings();
+                break;
+            case R.id.menu_search:
                 break;
             default:
                 if(drawerLayout.isDrawerOpen(GravityCompat.START)){
@@ -204,7 +212,17 @@ public class SecondActivity extends AppCompatActivity {
     }
 
 
+    /*@Override
+    public void onBackPressed() {
+        DrawerLayout mainDrawer = findViewById(R.id.mainDrawer);
+        if (mainDrawer != null && mainDrawer.isDrawerOpen(GravityCompat.START)) {
+            mainDrawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
+    }
 
+     */
 
 
 }

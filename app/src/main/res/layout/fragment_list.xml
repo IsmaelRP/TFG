@@ -37,12 +37,6 @@
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:text="@string/emptyCloudListText" />
 
-        <ImageView
-            android:id="@+id/cosita"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:contentDescription="TODO" />
-
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

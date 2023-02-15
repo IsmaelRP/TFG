@@ -38,7 +38,7 @@ class TabsListFragmentPagerAdapter extends FragmentStateAdapter {
         if (position == 0) {
             return ListFragment.newInstance();
         } else {
-            return ListFragment.newInstance();
+            return new Fragment();
         }
     }
 }
