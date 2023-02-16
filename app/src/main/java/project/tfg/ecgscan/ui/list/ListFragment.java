@@ -5,9 +5,11 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import androidx.appcompat.widget.SearchView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.navigation.NavController;
@@ -27,7 +29,9 @@ import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
+import project.tfg.ecgscan.R;
 import project.tfg.ecgscan.data.ElectroImage;
 import project.tfg.ecgscan.data.Event;
 import project.tfg.ecgscan.databinding.FragmentListBinding;
@@ -42,6 +46,8 @@ public class ListFragment extends Fragment {
     private FirebaseStorage storage;
     private StorageReference storageRef;
 
+    private Toolbar toolbar;
+
     private final long ONE_MEGABYTE = 1024 * 1024;
     private ListFragmentAdapter listAdapter;
 
@@ -54,10 +60,11 @@ public class ListFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        setupViews(view);
+        setupViews();
         secondVM.clearImages();
 
     }
+
 
     @Override
     public void onResume() {
@@ -119,7 +126,7 @@ public class ListFragment extends Fragment {
     }
 
 
-    private void setupViews(View view) {
+    private void setupViews() {
         secondVM = ViewModelProviders.of(requireActivity()).get(SecondActivityViewModel.class);
 
         updateStorage(secondVM.getFirebaseStorage().getValue());
@@ -136,6 +143,23 @@ public class ListFragment extends Fragment {
         b.lstList.setLayoutManager(new LinearLayoutManager(requireContext()));
         b.lstList.setItemAnimator(new DefaultItemAnimator());
         b.lstList.setAdapter(listAdapter);
+
+
+        toolbar = Objects.requireNonNull(requireActivity().findViewById(R.id.main_toolbar));
+
+        SearchView searchView = (SearchView) toolbar.getMenu().findItem(R.id.menu_search).getActionView();
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                listAdapter.getFilter().filter(newText);
+                return true;
+            }
+        });
     }
 
     private void updateList(Event<List<ElectroImage>> listEvent) {

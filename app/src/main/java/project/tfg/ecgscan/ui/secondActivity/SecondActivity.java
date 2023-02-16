@@ -106,7 +106,7 @@ public class SecondActivity extends AppCompatActivity {
     private void setupViews() {
         secondActivityViewModel = ViewModelProviders.of(this, new SecondActivityViewModelFactory()).get(SecondActivityViewModel.class);
 
-        toolbar = Objects.requireNonNull(findViewById(R.id.my_toolbar));
+        toolbar = Objects.requireNonNull(findViewById(R.id.main_toolbar));
 
         setSupportActionBar(toolbar);
 
