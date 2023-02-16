@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import androidx.annotation.Nullable;
@@ -44,6 +46,7 @@ public class SecondActivity extends AppCompatActivity {
     private SharedPreferences preferences;
     private FirebaseStorage storage;
     private StorageReference storageRef;
+    private Toolbar toolbar;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -53,7 +56,13 @@ public class SecondActivity extends AppCompatActivity {
         setupNavigationGraph();
         setupPreferences();
         setupFirebaseStorage();
+    }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_menu, menu);
+        return true;
     }
 
     private void setupFirebaseStorage() {
@@ -63,6 +72,7 @@ public class SecondActivity extends AppCompatActivity {
         secondActivityViewModel.setFirebaseStorage(storage);
         secondActivityViewModel.setStorageReference(storageRef);
     }
+
 
     private FirebaseStorage configureFirebase(String projectID, String applicationID, String APIkey, String databaseURL) {
         FirebaseOptions options = new FirebaseOptions.Builder()
@@ -93,39 +103,39 @@ public class SecondActivity extends AppCompatActivity {
     }
 
 
-
     private void setupViews() {
         secondActivityViewModel = ViewModelProviders.of(this, new SecondActivityViewModelFactory()).get(SecondActivityViewModel.class);
 
-        Toolbar myToolbar = Objects.requireNonNull(findViewById(R.id.my_toolbar));
+        toolbar = Objects.requireNonNull(findViewById(R.id.my_toolbar));
 
-        setSupportActionBar(myToolbar);
+        setSupportActionBar(toolbar);
+
         navController = Navigation.findNavController(this, R.id.nav_second_host_fragment);
 
         navigationView = ActivityCompat.requireViewById(this, R.id.mainNavigationView);
         drawerLayout = Objects.requireNonNull(findViewById(R.id.mainDrawer));
 
-        navController.addOnDestinationChangedListener(
-                (controller, destination, arguments) -> setTitle(destination.getLabel()));
-
+        //navController.addOnDestinationChangedListener(
+          //      (controller, destination, arguments) -> setTitle(destination.getLabel()));
 
         navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
+            String test = destination.getDisplayName();
             switch (destination.getId()) {
-                case R.id.listFragment:
-                    navigationView.getMenu().clear();
-                    navigationView.inflateMenu(R.menu.menu_list);
+                case R.id.tabsListFragment:
+                    toolbar.getMenu().clear();
+                    toolbar.inflateMenu(R.menu.menu_list);
                     break;
                 default:
-                    navigationView.getMenu().clear();
-                    navigationView.inflateMenu(R.menu.main_menu);
+                    toolbar.getMenu().clear();
+                    toolbar.inflateMenu(R.menu.main_menu);
                     break;
             }
         });
 
+
         appBarConfiguration = new AppBarConfiguration.Builder(R.id.homeFragment, R.id.listFragment, R.id.settingsFragment, R.id.tabsListFragment).setDrawerLayout(drawerLayout).build();
 
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
-
     }
 
 
@@ -212,17 +222,6 @@ public class SecondActivity extends AppCompatActivity {
     }
 
 
-    /*@Override
-    public void onBackPressed() {
-        DrawerLayout mainDrawer = findViewById(R.id.mainDrawer);
-        if (mainDrawer != null && mainDrawer.isDrawerOpen(GravityCompat.START)) {
-            mainDrawer.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
-        }
-    }
-
-     */
 
 
 }

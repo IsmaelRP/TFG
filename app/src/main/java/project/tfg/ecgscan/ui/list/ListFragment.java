@@ -3,8 +3,6 @@ package project.tfg.ecgscan.ui.list;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -30,7 +28,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import project.tfg.ecgscan.R;
 import project.tfg.ecgscan.data.ElectroImage;
 import project.tfg.ecgscan.data.Event;
 import project.tfg.ecgscan.databinding.FragmentListBinding;
@@ -49,12 +46,6 @@ public class ListFragment extends Fragment {
     private ListFragmentAdapter listAdapter;
 
     private int aux = 0;
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        setHasOptionsMenu(true);
-        super.onCreate(savedInstanceState);
-    }
 
     public static ListFragment newInstance() {
         return new ListFragment();
@@ -124,16 +115,9 @@ public class ListFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         b = FragmentListBinding.inflate(inflater, container, false);
-        setHasOptionsMenu(true);
         return b.getRoot();
     }
 
-    @Override
-    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
-        inflater.inflate(R.menu.menu_list, menu);
-
-        super.onCreateOptionsMenu(menu, inflater);
-    }
 
     private void setupViews(View view) {
         secondVM = ViewModelProviders.of(requireActivity()).get(SecondActivityViewModel.class);

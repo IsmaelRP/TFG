@@ -9,8 +9,6 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.InputType;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
@@ -38,7 +36,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
-import project.tfg.ecgscan.R;
 import project.tfg.ecgscan.data.Event;
 import project.tfg.ecgscan.databinding.FragmentHomeBinding;
 import project.tfg.ecgscan.ui.secondActivity.SecondActivityViewModel;
@@ -59,17 +56,10 @@ public class HomeFragment extends Fragment {
     }
 
     @Override
-    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
-        inflater.inflate(R.menu.main_menu, menu);
-        super.onCreateOptionsMenu(menu, inflater);
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         b = FragmentHomeBinding.inflate(inflater, container, false);
         return b.getRoot();
     }
-
 
     private void startImageFunctionality(Bitmap image) {
         b.imageView.setImageBitmap(image);
