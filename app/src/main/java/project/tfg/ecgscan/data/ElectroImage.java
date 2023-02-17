@@ -4,7 +4,7 @@ import android.graphics.Bitmap;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-public class ElectroImage implements Comparable<ElectroImage>{
+public class ElectroImage implements Comparable<ElectroImage> {
 
     private Bitmap image;
     private String name;
@@ -57,4 +57,6 @@ public class ElectroImage implements Comparable<ElectroImage>{
     public int compareTo(ElectroImage electroImage) {
         return this.getName().compareTo(electroImage.getName());
     }
+
+
 }

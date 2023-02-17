@@ -33,10 +33,14 @@ import com.google.firebase.storage.UploadTask;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 import project.tfg.ecgscan.data.Event;
+import project.tfg.ecgscan.data.RepositoryImpl;
+import project.tfg.ecgscan.data.local.AppDatabase;
+import project.tfg.ecgscan.data.local.model.Electro;
 import project.tfg.ecgscan.databinding.FragmentHomeBinding;
 import project.tfg.ecgscan.ui.secondActivity.SecondActivityViewModel;
 
@@ -45,6 +49,7 @@ public class HomeFragment extends Fragment {
     private FragmentHomeBinding b;
     private Bitmap image;
     private SecondActivityViewModel secondVM;
+    private HomeFragmentViewmodel vm;
     private NavController navController;
     private boolean cloud;
 
@@ -81,6 +86,14 @@ public class HomeFragment extends Fragment {
 
         //updateStorage(secondVM.getFirebaseStorage().getValue());
         secondVM.getFirebaseStorage().observe(getViewLifecycleOwner(), this::updateStorage);
+
+        vm = ViewModelProviders.of(this,
+                        new HomeFragmentViewModelFactory(requireActivity().getApplication(), new RepositoryImpl(
+                                AppDatabase.getInstance(requireContext().getApplicationContext()).electroDao())))
+                .get(HomeFragmentViewmodel.class);
+
+        vm.getInsertResult().observe(getViewLifecycleOwner(), v -> startImageFunctionality(image));
+
     }
 
     private void updateStorage(Event<FirebaseStorage> firebaseStorageEvent) {
@@ -186,12 +199,15 @@ public class HomeFragment extends Fragment {
         if (cloud){
             uploadImageToFirebase(filename);
         }else{
-            loadToLocal(filename);
+            saveToLocal(filename);
         }
     }
 
-    private void loadToLocal(String filename) {
-        //TODO: almacenar imagen en local
+    private void saveToLocal(String name) {
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        LocalDateTime now = LocalDateTime.now();
+
+        vm.insertElectro(new Electro(0, image, name, dtf.format(now)));
     }
 
     private void uploadImageToFirebase(String fileName) {

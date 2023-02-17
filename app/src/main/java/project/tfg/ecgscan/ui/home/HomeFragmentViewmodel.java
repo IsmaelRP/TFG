@@ -1,29 +1,37 @@
 package project.tfg.ecgscan.ui.home;
 
-import android.content.Context;
+import android.app.Application;
 
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
-import com.google.android.gms.tflite.client.TfLiteInitializationOptions;
-
-import org.tensorflow.lite.task.gms.vision.TfLiteVision;
+import project.tfg.ecgscan.base.Resource;
+import project.tfg.ecgscan.data.Repository;
+import project.tfg.ecgscan.data.local.model.Electro;
 
 
 public class HomeFragmentViewmodel extends ViewModel {
 
 
-    public void initializeTensorflowlite(Context context){
+    private final Application application;
+    private Repository repository;
 
-        TfLiteInitializationOptions options = TfLiteInitializationOptions.builder()
-                .setEnableGpuDelegateSupport(true)
-                .build();
+    private LiveData<Resource<Long>> insertResult;
+    private final MutableLiveData<Electro> insertTrigger = new MutableLiveData<>();
 
-        TfLiteVision.initialize(context, options).addOnSuccessListener(unused -> {
-            //  initialized
-            String modelName = "name";
-        }).addOnFailureListener(e -> {
-            //  error
-        });
+    HomeFragmentViewmodel(Application application, Repository repository) {
+        this.application = application;
+        this.repository = repository;
+        insertResult = Transformations.switchMap(insertTrigger, repository::insertElectro);
     }
 
+    public void insertElectro(Electro electro) {
+        insertTrigger.setValue(electro);
+    }
+
+    public LiveData<Resource<Long>> getInsertResult() {
+        return insertResult;
+    }
 }

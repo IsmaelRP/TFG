@@ -1,5 +1,4 @@
-package project.tfg.ecgscan.ui.list;
-
+package project.tfg.ecgscan.ui.list.cloud;
 
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -25,14 +24,14 @@ import project.tfg.ecgscan.R;
 import project.tfg.ecgscan.data.ElectroImage;
 import project.tfg.ecgscan.ui.secondActivity.SecondActivityViewModel;
 
-public class ListFragmentAdapter extends ListAdapter<ElectroImage, ListFragmentAdapter.ViewHolder> implements Filterable {
+public class CloudListFragmentAdapter extends ListAdapter<ElectroImage, CloudListFragmentAdapter.ViewHolder> implements Filterable {
 
     private final SecondActivityViewModel vm;
     private List<ElectroImage> listElectros;
     private List<ElectroImage> listElectrosFiltered;
 
 
-    ListFragmentAdapter(SecondActivityViewModel vm) {
+    CloudListFragmentAdapter(SecondActivityViewModel vm) {
         super(new DiffUtil.ItemCallback<ElectroImage>() {
             @Override
             public boolean areItemsTheSame(@NonNull ElectroImage oldItem, @NonNull ElectroImage newItem) {

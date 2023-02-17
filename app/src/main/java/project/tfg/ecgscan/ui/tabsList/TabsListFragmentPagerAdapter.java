@@ -7,7 +7,8 @@ import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Lifecycle;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
-import project.tfg.ecgscan.ui.list.ListFragment;
+import project.tfg.ecgscan.ui.list.cloud.CloudListFragment;
+import project.tfg.ecgscan.ui.list.local.LocalListFragment;
 
 class TabsListFragmentPagerAdapter extends FragmentStateAdapter {
 
@@ -21,9 +22,9 @@ class TabsListFragmentPagerAdapter extends FragmentStateAdapter {
     @NonNull
     public Fragment getItem(int position) {
         if (position == 0) {
-            return ListFragment.newInstance();
+            return CloudListFragment.newInstance();
         } else {
-            return ListFragment.newInstance();
+            return CloudListFragment.newInstance();
         }
     }
 
@@ -36,9 +37,9 @@ class TabsListFragmentPagerAdapter extends FragmentStateAdapter {
     @Override
     public Fragment createFragment(int position) {
         if (position == 0) {
-            return ListFragment.newInstance();
+            return CloudListFragment.newInstance();
         } else {
-            return new Fragment();
+            return LocalListFragment.newInstance();
         }
     }
 }

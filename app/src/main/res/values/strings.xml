@@ -7,7 +7,7 @@
     <string name="image_list">Electrocardiogram\'s list</string>
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
-    <string name="listFragmentTitle">ListFragment</string>
+    <string name="cloudListFragmentTitle">ListFragment</string>
     <string name="settings">Settings</string>
     <string name="settingsFragmentTitle">Settings</string>
     <string name="preferencesCloud">CLOUDPREF</string>

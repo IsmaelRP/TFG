@@ -1,18 +1,17 @@
-package project.tfg.ecgscan.ui.list;
+package project.tfg.ecgscan.ui.list.cloud;
 
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import androidx.appcompat.widget.SearchView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
-import androidx.navigation.NavController;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
@@ -37,9 +36,8 @@ import project.tfg.ecgscan.data.Event;
 import project.tfg.ecgscan.databinding.FragmentListBinding;
 import project.tfg.ecgscan.ui.secondActivity.SecondActivityViewModel;
 
-public class ListFragment extends Fragment {
+public class CloudListFragment extends Fragment {
 
-    private NavController navController;
     private FragmentListBinding b;
     private SecondActivityViewModel secondVM;
 
@@ -49,12 +47,10 @@ public class ListFragment extends Fragment {
     private Toolbar toolbar;
 
     private final long ONE_MEGABYTE = 1024 * 1024;
-    private ListFragmentAdapter listAdapter;
+    private CloudListFragmentAdapter listAdapter;
 
-    private int aux = 0;
-
-    public static ListFragment newInstance() {
-        return new ListFragment();
+    public static CloudListFragment newInstance() {
+        return new CloudListFragment();
     }
 
     @Override
@@ -62,7 +58,6 @@ public class ListFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         setupViews();
         secondVM.clearImages();
-
     }
 
 
@@ -137,7 +132,7 @@ public class ListFragment extends Fragment {
 
         secondVM.getListElectros().observe(getViewLifecycleOwner(), this::updateList);
 
-        listAdapter = new ListFragmentAdapter(secondVM);
+        listAdapter = new CloudListFragmentAdapter(secondVM);
 
         b.lstList.setHasFixedSize(true);
         b.lstList.setLayoutManager(new LinearLayoutManager(requireContext()));
