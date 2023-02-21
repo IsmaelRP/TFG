@@ -12,8 +12,10 @@ import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.navigation.NavController;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -49,14 +51,21 @@ public class CloudListFragment extends Fragment {
     private final long ONE_MEGABYTE = 1024 * 1024;
     private CloudListFragmentAdapter listAdapter;
 
-    public static CloudListFragment newInstance() {
-        return new CloudListFragment();
+    private NavController navController;
+
+
+    public static CloudListFragment newInstance(NavController navController) {
+        return new CloudListFragment(navController);
+    }
+
+    public CloudListFragment(NavController navController) {
+        this.navController = navController;
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        setupViews();
+        setupViews(view);
         secondVM.clearImages();
     }
 
@@ -121,7 +130,8 @@ public class CloudListFragment extends Fragment {
     }
 
 
-    private void setupViews() {
+    private void setupViews(View view) {
+
         secondVM = ViewModelProviders.of(requireActivity()).get(SecondActivityViewModel.class);
 
         updateStorage(secondVM.getFirebaseStorage().getValue());
@@ -155,6 +165,27 @@ public class CloudListFragment extends Fragment {
                 return true;
             }
         });
+
+        b.swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                loadItems();
+            }
+        });
+
+        secondVM.getElectroObservable().observe(getViewLifecycleOwner(), this::goToHome);
+    }
+
+
+    private void goToHome(Event<ElectroImage> electroImageEvent) {
+        if (!electroImageEvent.hasBeenHandled()){
+            electroImageEvent.getContentIfNotHandled();
+
+            if(!navController.getCurrentDestination().getDisplayName().contains("home")){
+                requireActivity().onBackPressed();
+            }
+
+        }
     }
 
     private void updateList(Event<List<ElectroImage>> listEvent) {
@@ -163,7 +194,7 @@ public class CloudListFragment extends Fragment {
         listAdapter.submitList(list);
         listAdapter.notifyDataSetChanged();
         b.lblEmptyList.setVisibility(list.isEmpty() ? View.VISIBLE : View.INVISIBLE);
-        //b.swRefreshFoods.setRefreshing(false);
+        b.swipeRefreshLayout.setRefreshing(false);
     }
 
     private void updateStorageReference(Event<StorageReference> storageReferenceEvent) {

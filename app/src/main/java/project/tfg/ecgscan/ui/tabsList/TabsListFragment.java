@@ -12,10 +12,14 @@ import androidx.core.view.ViewCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
+
+import java.util.Objects;
 
 import project.tfg.ecgscan.R;
 import project.tfg.ecgscan.databinding.FragmentTabslistBinding;
@@ -26,6 +30,7 @@ public class TabsListFragment extends Fragment {
     private FragmentTabslistBinding b;
     private SecondActivityViewModel vm;
 
+    private NavController navController;
 
     @Override
     public void onResume() {
@@ -51,6 +56,8 @@ public class TabsListFragment extends Fragment {
     }
 
     private void setupViews(View view) {
+        navController = Objects.requireNonNull(Navigation.findNavController(view));
+
         vm = ViewModelProviders.of(requireActivity()).get(SecondActivityViewModel.class);     //  To obtain ViewModel
 
         ((AppCompatActivity) requireActivity()).setSupportActionBar(b.tabsToolbar);
@@ -61,7 +68,7 @@ public class TabsListFragment extends Fragment {
         ViewPager2 viewPager = ViewCompat.requireViewById(view, R.id.viewPager);
         TabLayout tabLayout = ViewCompat.requireViewById(view, R.id.tabLayout);
 
-        TabsListFragmentPagerAdapter adapter = new TabsListFragmentPagerAdapter(requireFragmentManager(), getLifecycle());
+        TabsListFragmentPagerAdapter adapter = new TabsListFragmentPagerAdapter(requireFragmentManager(), getLifecycle(), navController);
         viewPager.setAdapter(adapter);
         new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> tab.setIcon(iconResIds[position])).attach();
         viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {

@@ -25,6 +25,9 @@ public class SecondActivityViewModel extends ViewModel {
 
     private final MutableLiveData<Event<List<ElectroImage>>> listElectros = new MutableLiveData<>();
 
+    private final MutableLiveData<Event<ElectroImage>> actualElectro = new MutableLiveData<>();
+
+
     private final ArrayList<ElectroImage> list = new ArrayList<>();
 
 
@@ -96,5 +99,14 @@ public class SecondActivityViewModel extends ViewModel {
                 // Uh-oh, an error occurred!
             }
         });
+    }
+
+
+    public MutableLiveData<Event<ElectroImage>> getElectroObservable(){
+        return actualElectro;
+    }
+
+    public void setElectroObservable(ElectroImage electro){
+        actualElectro.postValue(new Event<>(electro));
     }
 }

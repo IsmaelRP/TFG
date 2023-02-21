@@ -1,17 +1,13 @@
 package project.tfg.ecgscan.ui.home;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -32,11 +28,16 @@ import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.Objects;
 
+import project.tfg.ecgscan.base.MsgDialog;
+import project.tfg.ecgscan.base.YesNoDialog;
+import project.tfg.ecgscan.data.ElectroImage;
 import project.tfg.ecgscan.data.Event;
 import project.tfg.ecgscan.data.RepositoryImpl;
 import project.tfg.ecgscan.data.local.AppDatabase;
@@ -66,10 +67,6 @@ public class HomeFragment extends Fragment {
         return b.getRoot();
     }
 
-    private void startImageFunctionality(Bitmap image) {
-        b.imageView.setImageBitmap(image);
-    }
-
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -79,6 +76,7 @@ public class HomeFragment extends Fragment {
 
     private void setupViews(View view) {
         navController = Objects.requireNonNull(Navigation.findNavController(view));
+
         secondVM = ViewModelProviders.of(requireActivity()).get(SecondActivityViewModel.class);
         secondVM.getNavigateToList().observe(getViewLifecycleOwner(), this::navigateToTabs);
         b.btnScan.setOnClickListener(v -> dispatchTakePictureIntent(MediaStore.ACTION_IMAGE_CAPTURE));
@@ -93,6 +91,45 @@ public class HomeFragment extends Fragment {
                 .get(HomeFragmentViewmodel.class);
 
         vm.getInsertResult().observe(getViewLifecycleOwner(), v -> startImageFunctionality(image));
+
+        secondVM.getElectroObservable().observe(getViewLifecycleOwner(), this::updateUI);
+
+        vm.getDiagnoseResponse().observe(getViewLifecycleOwner(), v -> b.txtDiagnosisData.setText(v));
+    }
+
+
+    private void startImageFunctionality(Bitmap image) {
+        //TODO: diagnosticar
+
+        // cuando se termine de diagnosticar, ocultar loading y actualizar UI
+        vm.diagnoseImage(image);
+
+
+        b.imageView.setImageBitmap(image);
+    }
+
+
+    private void updateUI(Event<ElectroImage> electro) {
+        electro.getContentIfNotHandled();
+
+        b.imageView.setImageBitmap(electro.peekContent().getImage());
+
+        b.txtDiagnosis.setVisibility(View.VISIBLE);
+        b.txtDiagnosisData.setVisibility(View.VISIBLE);
+        b.txtEmptyDiag.setVisibility(View.INVISIBLE);
+
+
+        if (!electro.peekContent().getName().isEmpty()){
+            b.txtName.setVisibility(View.VISIBLE);
+            b.txtDate.setVisibility(View.VISIBLE);
+
+            b.txtNameData.setVisibility(View.VISIBLE);
+            b.txtDateData.setVisibility(View.VISIBLE);
+
+            b.txtNameData.setText(electro.peekContent().getName());
+            b.txtDateData.setText(electro.peekContent().getDate());
+        }
+
 
     }
 
@@ -133,32 +170,27 @@ public class HomeFragment extends Fragment {
                     if (result.getData().getExtras() != null) {
                         image = (Bitmap) result.getData().getExtras().get("data");
                         startImageFunctionality(image);
-                        launchYesNoDialog(image);
+                        launchYesNoDialog();
                     } else {
                         try {
                             image = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), result.getData().getData());
                             startImageFunctionality(image);
-                            launchYesNoDialog(image);
+                            launchYesNoDialog();
                         } catch (IOException e) {
                             System.out.println("Error handling media files");
                         }
                     }
+
+                    Date date = new Date();
+                    SimpleDateFormat df = new SimpleDateFormat("dd/MM/yy");
+                    secondVM.setElectroObservable(new ElectroImage(image, "", df.format(date)));
+
                 }
             });
 
-    private final DialogInterface.OnClickListener dialogClickListener = (dialog, which) -> {
-        switch (which) {
-            case DialogInterface.BUTTON_POSITIVE:
-                launchNameTextDialog();
-                break;
 
-            case DialogInterface.BUTTON_NEGATIVE:
-                //  nothing for now
-                break;
-        }
-    };
-
-    private void launchYesNoDialog(Bitmap image) {
+    private void launchYesNoDialog() {
+        /*
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         String msg;
         cloud = secondVM.getPreferencesCloud().getValue().peekContent();
@@ -168,13 +200,37 @@ public class HomeFragment extends Fragment {
         }else{
             msg = "Do you want to save the image on your phone?";
         }
+
         builder.setMessage(msg)
                 .setPositiveButton("Yes", dialogClickListener)
                 .setNegativeButton("No", dialogClickListener)
                 .show();
+
+         */
+
+        String msg;
+        cloud = secondVM.getPreferencesCloud().getValue().peekContent();
+
+        if (cloud){
+            msg = "Do you want to upload the image to the cloud?";
+        }else{
+            msg = "Do you want to save the image on your phone?";
+        }
+
+
+        YesNoDialog dialog = YesNoDialog.newInstance(msg);
+        dialog.setOnClickListener(new OnOkClickListener() {
+            @Override
+            public void onOkClick() {
+                launchNameTextDialog();
+            }
+        });
+        dialog.show(getChildFragmentManager(), "YesNoDialog");
     }
 
+
     private void launchNameTextDialog() {
+        /*
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
         builder.setTitle("Fill in the name of the electrocardiogram");
 
@@ -183,19 +239,27 @@ public class HomeFragment extends Fragment {
         builder.setView(input);
 
         builder.setPositiveButton("Save", (dialog, which) -> saveImage(input.getText().toString()));
-        builder.setNegativeButton("Cancel", (dialog, which) -> diagnoseImg(dialog));
+        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
 
         builder.show();
-    }
 
-    private void diagnoseImg(DialogInterface dialog) {
-        //TODO: llamar al viewmodel con la img y mostrar diagnóstico en la pantalla home de manera "temporal"
-        // image
-        dialog.cancel();
+
+         */
+
+
+        MsgDialog dialog = MsgDialog.newInstance();
+        dialog.setOnClickListener(new OnButtonClickListener() {
+            @Override
+            public void onButtonClick(String title) {
+                saveImage(title);
+            }
+        });
+        dialog.show(getChildFragmentManager(), "MsgDialog");
+
+
     }
 
     private void saveImage(String filename){
-
         if (cloud){
             uploadImageToFirebase(filename);
         }else{
@@ -241,6 +305,5 @@ public class HomeFragment extends Fragment {
         });
 
     }
-
 
 }

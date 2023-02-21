@@ -1,5 +1,6 @@
 package project.tfg.ecgscan.ui.list.local;
 
+import android.graphics.drawable.BitmapDrawable;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,16 +22,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 import project.tfg.ecgscan.R;
+import project.tfg.ecgscan.data.ElectroImage;
 import project.tfg.ecgscan.data.local.model.Electro;
+import project.tfg.ecgscan.ui.secondActivity.SecondActivityViewModel;
 
 public class LocalListFragmentAdapter extends ListAdapter<Electro, LocalListFragmentAdapter.ViewHolder> implements Filterable {
 
+    private final SecondActivityViewModel secondVM;
     private final LocalListFragmentViewModel vm;
     private List<Electro> listElectros;
     private List<Electro> listElectrosFiltered;
 
 
-    LocalListFragmentAdapter(LocalListFragmentViewModel vm) {
+    LocalListFragmentAdapter(SecondActivityViewModel secondVM, LocalListFragmentViewModel vm) {
         super(new DiffUtil.ItemCallback<Electro>() {
             @Override
             public boolean areItemsTheSame(@NonNull Electro oldItem, @NonNull Electro newItem) {
@@ -42,13 +46,15 @@ public class LocalListFragmentAdapter extends ListAdapter<Electro, LocalListFrag
                 return TextUtils.equals(oldItem.getName(), newItem.getName());
             }
         });
+
+        this.secondVM = secondVM;
         this.vm = vm;
     }
 
     @NonNull
     public LocalListFragmentAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         return new LocalListFragmentAdapter.ViewHolder(LayoutInflater.from(parent.getContext()).
-                inflate(R.layout.image_electro, parent, false), vm);
+                inflate(R.layout.image_electro, parent, false), secondVM, vm);
     }
 
     @Override
@@ -132,19 +138,20 @@ public class LocalListFragmentAdapter extends ListAdapter<Electro, LocalListFrag
         private final Button btnDiagnose;
         private final Button btnDelete;
         private final LocalListFragmentViewModel vm;
+        private final SecondActivityViewModel secondVM;
 
-        ViewHolder(View itemView, LocalListFragmentViewModel vm) {
+        ViewHolder(View itemView, SecondActivityViewModel secondVM, LocalListFragmentViewModel vm) {
             super(itemView);
             lblImageName = ViewCompat.requireViewById(itemView, R.id.txtName);
             lblImageDate = ViewCompat.requireViewById(itemView, R.id.txtDate);
             btnDiagnose = ViewCompat.requireViewById(itemView, R.id.btnDiagnose);
             btnDelete = ViewCompat.requireViewById(itemView, R.id.btnDelete);
             imgElectro = ViewCompat.requireViewById(itemView, R.id.imgElectro);
+            this.secondVM = secondVM;
             this.vm = vm;
 
-            // TODO: implementar métodos abajo
             btnDelete.setOnClickListener(v -> vm.deleteImgFromLocal(getItem(getAdapterPosition())));
-            //btnDiagnose.setOnClickListener(v -> vm.diagnoseImg(((BitmapDrawable)imgElectro.getDrawable()).getBitmap()));
+            btnDiagnose.setOnClickListener(v -> secondVM.setElectroObservable(new ElectroImage(((BitmapDrawable)imgElectro.getDrawable()).getBitmap(), lblImageName.getText().toString(), lblImageDate.getText().toString())));
         }
 
 

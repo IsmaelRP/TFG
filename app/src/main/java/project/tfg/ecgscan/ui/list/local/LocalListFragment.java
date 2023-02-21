@@ -11,22 +11,29 @@ import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.navigation.NavController;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import java.util.Objects;
 
 import project.tfg.ecgscan.R;
+import project.tfg.ecgscan.data.ElectroImage;
+import project.tfg.ecgscan.data.Event;
 import project.tfg.ecgscan.data.RepositoryImpl;
 import project.tfg.ecgscan.data.local.AppDatabase;
 import project.tfg.ecgscan.databinding.FragmentListBinding;
+import project.tfg.ecgscan.ui.secondActivity.SecondActivityViewModel;
 
 public class LocalListFragment extends Fragment {
 
     private FragmentListBinding b;
+    private SecondActivityViewModel secondVM;
     private LocalListFragmentViewModel vm;
     private Toolbar toolbar;
     private LocalListFragmentAdapter listAdapter;
+    private NavController navController;
 
 
     @Override
@@ -35,19 +42,25 @@ public class LocalListFragment extends Fragment {
         return b.getRoot();
     }
 
+    public LocalListFragment(NavController navController) {
+        this.navController = navController;
+    }
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        setupViews();
+        setupViews(view);
     }
 
-    private void setupViews() {
+    private void setupViews(View view) {
+        secondVM = ViewModelProviders.of(requireActivity()).get(SecondActivityViewModel.class);
+
         vm = ViewModelProviders.of(this,
                         new LocalListFragmentViewModelFactory(requireActivity().getApplication(), new RepositoryImpl(
                                 AppDatabase.getInstance(requireContext().getApplicationContext()).electroDao())))
                 .get(LocalListFragmentViewModel.class);
 
-        listAdapter = new LocalListFragmentAdapter(vm);
+        listAdapter = new LocalListFragmentAdapter(secondVM, vm);
 
         b.lstList.setHasFixedSize(true);
         b.lstList.setLayoutManager(new LinearLayoutManager(requireContext()));
@@ -71,7 +84,26 @@ public class LocalListFragment extends Fragment {
             }
         });
 
+        b.swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                observeCompanies();
+            }
+        });
+
         observeCompanies();
+
+        secondVM.getElectroObservable().observe(getViewLifecycleOwner(), this::goToHome);
+    }
+
+    private void goToHome(Event<ElectroImage> electroImageEvent) {
+        if (!electroImageEvent.hasBeenHandled()){
+            electroImageEvent.getContentIfNotHandled();
+
+            if(!navController.getCurrentDestination().getDisplayName().contains("home")){
+                requireActivity().onBackPressed();
+            }
+        }
     }
 
 
@@ -79,11 +111,12 @@ public class LocalListFragment extends Fragment {
         vm.getElectros().observe(getViewLifecycleOwner(), electros -> {
             listAdapter.submitList(electros);
             b.lblEmptyList.setVisibility(electros.isEmpty() ? View.VISIBLE : View.INVISIBLE);
+            b.swipeRefreshLayout.setRefreshing(false);
         });
     }
 
-    public static LocalListFragment newInstance() {
-        return new LocalListFragment();
+    public static LocalListFragment newInstance(NavController navController) {
+        return new LocalListFragment(navController);
     }
 
 

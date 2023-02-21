@@ -1,6 +1,7 @@
 package project.tfg.ecgscan.ui.home;
 
 import android.app.Application;
+import android.graphics.Bitmap;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -21,17 +22,41 @@ public class HomeFragmentViewmodel extends ViewModel {
     private LiveData<Resource<Long>> insertResult;
     private final MutableLiveData<Electro> insertTrigger = new MutableLiveData<>();
 
+    private final MutableLiveData<String> diagnoseResponse = new MutableLiveData<>();
+
     HomeFragmentViewmodel(Application application, Repository repository) {
         this.application = application;
         this.repository = repository;
         insertResult = Transformations.switchMap(insertTrigger, repository::insertElectro);
     }
 
+    public LiveData<Resource<Long>> getInsertResult() {
+        return insertResult;
+    }
+
     public void insertElectro(Electro electro) {
         insertTrigger.setValue(electro);
     }
 
-    public LiveData<Resource<Long>> getInsertResult() {
-        return insertResult;
+
+    public MutableLiveData<String> getDiagnoseResponse() {
+        return diagnoseResponse;
+    }
+
+    public void  setDiagnoseResponse(String diagnose) {
+        diagnoseResponse.postValue(diagnose);
+    }
+
+    public void diagnoseImage(Bitmap image) {
+        //TODO: implementar llamada a Matlab que diagnostique
+
+        /*try {
+            Thread.sleep(3);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }*/
+
+        // al final, se actualiza la respuesta
+        setDiagnoseResponse("TODO: Cardiopatía es una palabra muy amplia que se utiliza para una variedad...");
     }
 }

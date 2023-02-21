@@ -1,5 +1,6 @@
 package project.tfg.ecgscan.ui.list.cloud;
 
+import android.graphics.drawable.BitmapDrawable;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -145,7 +146,7 @@ public class CloudListFragmentAdapter extends ListAdapter<ElectroImage, CloudLis
 
             // TODO: implementar métodos abajo
             btnDelete.setOnClickListener(v -> vm.deleteImgFromFirebase(lblImageName.getText().toString()));
-            //btnDiagnose.setOnClickListener(v -> vm.diagnoseImg(((BitmapDrawable)imgElectro.getDrawable()).getBitmap()));
+            btnDiagnose.setOnClickListener(v -> vm.setElectroObservable(new ElectroImage(((BitmapDrawable)imgElectro.getDrawable()).getBitmap(), lblImageName.getText().toString(), lblImageDate.getText().toString())));
         }
 
 
