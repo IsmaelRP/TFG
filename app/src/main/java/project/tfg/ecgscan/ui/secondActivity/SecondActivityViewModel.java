@@ -65,7 +65,6 @@ public class SecondActivityViewModel extends ViewModel {
     }
 
 
-
     public MutableLiveData<Event<List<ElectroImage>>> getListElectros() {
         return listElectros;
     }
@@ -109,4 +108,5 @@ public class SecondActivityViewModel extends ViewModel {
     public void setElectroObservable(ElectroImage electro){
         actualElectro.postValue(new Event<>(electro));
     }
+
 }

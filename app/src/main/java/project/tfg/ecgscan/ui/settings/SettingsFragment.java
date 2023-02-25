@@ -9,15 +9,21 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.preference.PreferenceFragmentCompat;
 
+import java.util.Objects;
+
 import project.tfg.ecgscan.R;
+import project.tfg.ecgscan.data.Event;
 import project.tfg.ecgscan.ui.secondActivity.SecondActivityViewModel;
 
 public class SettingsFragment extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     private SecondActivityViewModel vm;
     private final SharedPreferences.OnSharedPreferenceChangeListener onSharedPreferenceChangeListener = this;
+    private NavController navController;
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
@@ -40,7 +46,19 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        setupViews(view);
+    }
+
+    private void setupViews(View view) {
+        navController = Objects.requireNonNull(Navigation.findNavController(view));
         vm = ViewModelProviders.of(requireActivity()).get(SecondActivityViewModel.class);
+        vm.getNavigateToList().observe(getViewLifecycleOwner(), this::navigateToTabs);
+    }
+
+    private void navigateToTabs(Event<Boolean> booleanEvent) {
+        if (booleanEvent.getContentIfNotHandled() != null){
+            navController.navigate(SettingsFragmentDirections.desSettingsToTabs());
+        }
     }
 
     @Override

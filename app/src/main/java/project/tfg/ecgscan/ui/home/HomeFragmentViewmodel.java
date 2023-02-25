@@ -8,7 +8,9 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
+import project.tfg.ecgscan.base.DiagnosisListener;
 import project.tfg.ecgscan.base.Resource;
+import project.tfg.ecgscan.data.DiagnosisTask;
 import project.tfg.ecgscan.data.Repository;
 import project.tfg.ecgscan.data.local.model.Electro;
 
@@ -48,15 +50,17 @@ public class HomeFragmentViewmodel extends ViewModel {
     }
 
     public void diagnoseImage(Bitmap image) {
-        //TODO: implementar llamada a Matlab que diagnostique
 
-        /*try {
-            Thread.sleep(3);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }*/
+        DiagnosisTask task = new DiagnosisTask(new DiagnosisListener() {
 
-        // al final, se actualiza la respuesta
-        setDiagnoseResponse("TODO: Cardiopatía es una palabra muy amplia que se utiliza para una variedad...");
+            @Override
+            public void onDiagnoseComplete(String result) {
+                setDiagnoseResponse(result);
+            }
+        }, image);
+
+        task.execute();
+
+
     }
 }

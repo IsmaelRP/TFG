@@ -1,6 +1,7 @@
 package project.tfg.ecgscan.ui.home;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -8,6 +9,7 @@ import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -53,6 +55,7 @@ public class HomeFragment extends Fragment {
     private HomeFragmentViewmodel vm;
     private NavController navController;
     private boolean cloud;
+    private ProgressDialog progressDialog;
 
     private FirebaseStorage storage;
 
@@ -72,6 +75,7 @@ public class HomeFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         setupViews(view);
     }
+
 
 
     private void setupViews(View view) {
@@ -94,25 +98,29 @@ public class HomeFragment extends Fragment {
 
         secondVM.getElectroObservable().observe(getViewLifecycleOwner(), this::updateUI);
 
-        vm.getDiagnoseResponse().observe(getViewLifecycleOwner(), v -> b.txtDiagnosisData.setText(v));
+        vm.getDiagnoseResponse().observe(getViewLifecycleOwner(), v -> updateDiagnose(v));
+    }
+
+    private void updateDiagnose(String diag) {
+        b.txtDiagnosisData.setText(diag);
+        progressDialog.dismiss();
+        b.imageView.setImageBitmap(image);
     }
 
 
     private void startImageFunctionality(Bitmap image) {
-        //TODO: diagnosticar
+        progressDialog = new ProgressDialog(requireContext());
+        progressDialog.setMessage("Diagnosing the image...");
+        progressDialog.setCancelable(false);
+        progressDialog.show();
 
-        // cuando se termine de diagnosticar, ocultar loading y actualizar UI
         vm.diagnoseImage(image);
 
-
-        b.imageView.setImageBitmap(image);
     }
 
 
     private void updateUI(Event<ElectroImage> electro) {
         electro.getContentIfNotHandled();
-
-        b.imageView.setImageBitmap(electro.peekContent().getImage());
 
         b.txtDiagnosis.setVisibility(View.VISIBLE);
         b.txtDiagnosisData.setVisibility(View.VISIBLE);
@@ -139,7 +147,13 @@ public class HomeFragment extends Fragment {
 
     private void navigateToTabs(Event<Boolean> booleanEvent) {
         if (booleanEvent.getContentIfNotHandled() != null){
-            navController.navigate(HomeFragmentDirections.desHomeToTabs());
+
+            if (FirebaseAuth.getInstance().getCurrentUser().isAnonymous()){
+                Toast.makeText(getContext(), "Error, anonymous users cannot access to lists", Toast.LENGTH_LONG).show();
+            }else{
+                navController.navigate(HomeFragmentDirections.desHomeToTabs());
+            }
+
         }
     }
 
@@ -170,12 +184,20 @@ public class HomeFragment extends Fragment {
                     if (result.getData().getExtras() != null) {
                         image = (Bitmap) result.getData().getExtras().get("data");
                         startImageFunctionality(image);
-                        launchYesNoDialog();
+
+                        if (!FirebaseAuth.getInstance().getCurrentUser().isAnonymous()){
+                            launchYesNoDialog();
+                        }
+
                     } else {
                         try {
                             image = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), result.getData().getData());
                             startImageFunctionality(image);
-                            launchYesNoDialog();
+
+                            if (!FirebaseAuth.getInstance().getCurrentUser().isAnonymous()){
+                                launchYesNoDialog();
+                            }
+
                         } catch (IOException e) {
                             System.out.println("Error handling media files");
                         }
@@ -190,24 +212,6 @@ public class HomeFragment extends Fragment {
 
 
     private void launchYesNoDialog() {
-        /*
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        String msg;
-        cloud = secondVM.getPreferencesCloud().getValue().peekContent();
-
-        if (cloud){
-            msg = "Do you want to upload the image to the cloud?";
-        }else{
-            msg = "Do you want to save the image on your phone?";
-        }
-
-        builder.setMessage(msg)
-                .setPositiveButton("Yes", dialogClickListener)
-                .setNegativeButton("No", dialogClickListener)
-                .show();
-
-         */
-
         String msg;
         cloud = secondVM.getPreferencesCloud().getValue().peekContent();
 
@@ -230,23 +234,6 @@ public class HomeFragment extends Fragment {
 
 
     private void launchNameTextDialog() {
-        /*
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-        builder.setTitle("Fill in the name of the electrocardiogram");
-
-        final EditText input = new EditText(requireContext());
-        input.setInputType(InputType.TYPE_CLASS_TEXT);
-        builder.setView(input);
-
-        builder.setPositiveButton("Save", (dialog, which) -> saveImage(input.getText().toString()));
-        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
-
-        builder.show();
-
-
-         */
-
-
         MsgDialog dialog = MsgDialog.newInstance();
         dialog.setOnClickListener(new OnButtonClickListener() {
             @Override

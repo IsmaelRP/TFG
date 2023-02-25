@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -119,7 +120,7 @@ public class SecondActivity extends AppCompatActivity {
           //      (controller, destination, arguments) -> setTitle(destination.getLabel()));
 
         navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
-            String test = destination.getDisplayName();
+
             switch (destination.getId()) {
                 case R.id.tabsListFragment:
                     toolbar.getMenu().clear();
@@ -130,10 +131,11 @@ public class SecondActivity extends AppCompatActivity {
                     toolbar.inflateMenu(R.menu.main_menu);
                     break;
             }
+            toolbar.setTitle(destination.getLabel());
         });
 
 
-        appBarConfiguration = new AppBarConfiguration.Builder(R.id.homeFragment, R.id.cloudListFragment, R.id.settingsFragment, R.id.tabsListFragment).setDrawerLayout(drawerLayout).build();
+        appBarConfiguration = new AppBarConfiguration.Builder(R.id.homeFragment, R.id.cloudListFragment, R.id.localListFragment, R.id.settingsFragment, R.id.tabsListFragment).setDrawerLayout(drawerLayout).build();
 
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
     }
@@ -202,7 +204,11 @@ public class SecondActivity extends AppCompatActivity {
     }
 
     private void openSettings() {
-        navController.navigate(R.id.settingsFragment);
+        if (FirebaseAuth.getInstance().getCurrentUser().isAnonymous()){
+            Toast.makeText(getApplicationContext(), "Error, anonymous users cannot access to settings", Toast.LENGTH_LONG).show();
+        }else{
+            navController.navigate(R.id.settingsFragment);
+        }
     }
 
     private void logout(){
