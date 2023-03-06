@@ -144,7 +144,6 @@ public class CloudListFragmentAdapter extends ListAdapter<ElectroImage, CloudLis
             imgElectro = ViewCompat.requireViewById(itemView, R.id.imgElectro);
             this.vm = vm;
 
-            // TODO: implementar métodos abajo
             btnDelete.setOnClickListener(v -> vm.deleteImgFromFirebase(lblImageName.getText().toString()));
             btnDiagnose.setOnClickListener(v -> vm.setElectroObservable(new ElectroImage(((BitmapDrawable)imgElectro.getDrawable()).getBitmap(), lblImageName.getText().toString(), lblImageDate.getText().toString())));
         }

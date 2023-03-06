@@ -118,7 +118,7 @@ public class CloudListFragment extends Fragment {
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception exception) {
-                //TODO error
+
             }
         });
     }

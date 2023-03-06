@@ -86,7 +86,6 @@ public class HomeFragment extends Fragment {
         b.btnScan.setOnClickListener(v -> dispatchTakePictureIntent(MediaStore.ACTION_IMAGE_CAPTURE));
         b.btnUpload.setOnClickListener(v -> dispatchSelectPictureIntent());
 
-        //updateStorage(secondVM.getFirebaseStorage().getValue());
         secondVM.getFirebaseStorage().observe(getViewLifecycleOwner(), this::updateStorage);
 
         vm = ViewModelProviders.of(this,
@@ -94,17 +93,23 @@ public class HomeFragment extends Fragment {
                                 AppDatabase.getInstance(requireContext().getApplicationContext()).electroDao())))
                 .get(HomeFragmentViewmodel.class);
 
-        vm.getInsertResult().observe(getViewLifecycleOwner(), v -> startImageFunctionality(image));
+        //vm.getInsertResult().observe(getViewLifecycleOwner(), v -> startImageFunctionality(image));
 
-        secondVM.getElectroObservable().observe(getViewLifecycleOwner(), this::updateUI);
+        secondVM.getElectroObservable().observe(getViewLifecycleOwner(), v -> {
+            updateUI(v);
+            startImageFunctionality(v.peekContent().getImage());
+        });
 
         vm.getDiagnoseResponse().observe(getViewLifecycleOwner(), v -> updateDiagnose(v));
     }
 
-    private void updateDiagnose(String diag) {
-        b.txtDiagnosisData.setText(diag);
-        progressDialog.dismiss();
-        b.imageView.setImageBitmap(image);
+    private void updateDiagnose(Event<String> diag) {
+        if(!diag.hasBeenHandled()){
+            b.txtDiagnosisData.setText(diag.getContentIfNotHandled());
+            progressDialog.dismiss();
+            b.imageView.setImageBitmap(image);
+        }
+
     }
 
 
@@ -115,17 +120,17 @@ public class HomeFragment extends Fragment {
         progressDialog.show();
 
         vm.diagnoseImage(image);
-
     }
 
 
     private void updateUI(Event<ElectroImage> electro) {
         electro.getContentIfNotHandled();
 
+        image = electro.peekContent().getImage();
+
         b.txtDiagnosis.setVisibility(View.VISIBLE);
         b.txtDiagnosisData.setVisibility(View.VISIBLE);
         b.txtEmptyDiag.setVisibility(View.INVISIBLE);
-
 
         if (!electro.peekContent().getName().isEmpty()){
             b.txtName.setVisibility(View.VISIBLE);
@@ -137,7 +142,6 @@ public class HomeFragment extends Fragment {
             b.txtNameData.setText(electro.peekContent().getName());
             b.txtDateData.setText(electro.peekContent().getDate());
         }
-
 
     }
 
@@ -180,10 +184,10 @@ public class HomeFragment extends Fragment {
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
                 if (result.getResultCode() == Activity.RESULT_OK) {
+                    startImageFunctionality(image);
 
                     if (result.getData().getExtras() != null) {
                         image = (Bitmap) result.getData().getExtras().get("data");
-                        startImageFunctionality(image);
 
                         if (!FirebaseAuth.getInstance().getCurrentUser().isAnonymous()){
                             launchYesNoDialog();
@@ -192,7 +196,6 @@ public class HomeFragment extends Fragment {
                     } else {
                         try {
                             image = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), result.getData().getData());
-                            startImageFunctionality(image);
 
                             if (!FirebaseAuth.getInstance().getCurrentUser().isAnonymous()){
                                 launchYesNoDialog();
@@ -203,10 +206,11 @@ public class HomeFragment extends Fragment {
                         }
                     }
 
+
                     Date date = new Date();
                     SimpleDateFormat df = new SimpleDateFormat("dd/MM/yy");
-                    secondVM.setElectroObservable(new ElectroImage(image, "", df.format(date)));
-
+                    //secondVM.setElectroObservable(new ElectroImage(image, "", df.format(date)));
+                    updateUI(new Event(new ElectroImage(image, "", df.format(date))));
                 }
             });
 

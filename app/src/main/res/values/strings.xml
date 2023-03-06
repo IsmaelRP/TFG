@@ -16,4 +16,11 @@
     <string name="emptyCloudListText">There aren\'t electros yet</string>
     <string name="search">Search</string>
     <string name="mnuSearch_hint">Type...</string>
+
+
+    <string name="facebook_app_id">1234307803883915</string>
+    <string name="fb_login_protocol_scheme">+J+3yf/mrgPgKeg1llIttpSjcws=</string>
+    <string name="facebook_client_token">e0168631d1eba95f59c42679b83f050c</string>
+
+
 </resources>

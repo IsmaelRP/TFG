@@ -59,27 +59,29 @@
     </com.google.android.material.textfield.TextInputLayout>
 
 
-    <Button
+    <androidx.appcompat.widget.AppCompatImageButton
         android:id="@+id/btnAnnonymous"
-        android:layout_width="150dp"
+        android:layout_width="@dimen/btnHeightStart"
         android:layout_height="@dimen/btnHeightStart"
         android:layout_margin="@dimen/marginLoginBtns"
-        android:text="Anonymous"
+        android:background="@android:color/transparent"
+        android:scaleType="centerCrop"
+        android:src="@drawable/anonymous"
         app:layout_constraintBottom_toTopOf="@+id/btnLogin"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/btnGoogle"
-        app:layout_constraintTop_toBottomOf="@+id/btnFacebook" />
+        app:layout_constraintTop_toBottomOf="@+id/tilPassword" />
 
-    <Button
+    <androidx.appcompat.widget.AppCompatImageButton
         android:id="@+id/btnGoogle"
-        android:layout_width="150dp"
+        android:layout_width="@dimen/btnHeightStart"
         android:layout_height="@dimen/btnHeightStart"
         android:layout_margin="@dimen/marginLoginBtns"
-        android:text="Google"
+        android:background="@android:color/transparent"
+        android:scaleType="centerCrop"
+        android:src="@drawable/google"
         app:layout_constraintBottom_toTopOf="@+id/btnLogin"
-        app:layout_constraintEnd_toStartOf="@+id/btnAnnonymous"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnMicrosoft" />
+        app:layout_constraintTop_toBottomOf="@+id/tilPassword" />
 
     <Button
         android:id="@+id/btnLogin"
@@ -90,29 +92,29 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <Button
-        android:id="@+id/btnMicrosoft"
-        android:layout_width="150dp"
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/btnPhone"
+        android:layout_width="@dimen/btnHeightStart"
         android:layout_height="@dimen/btnHeightStart"
         android:layout_margin="@dimen/marginLoginBtns"
-        android:text="Microsoft"
-        app:layout_constraintBottom_toTopOf="@+id/btnGoogle"
+        android:background="@android:color/transparent"
+        android:scaleType="centerCrop"
+        android:src="@drawable/phone"
+        app:layout_constraintBottom_toTopOf="@+id/btnLogin"
         app:layout_constraintEnd_toStartOf="@+id/btnFacebook"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tilPassword"
-        app:layout_constraintVertical_chainStyle="packed" />
+        app:layout_constraintStart_toEndOf="@+id/btnGoogle"
+        app:layout_constraintTop_toBottomOf="@+id/tilPassword" />
 
-    <Button
+
+    <com.facebook.login.widget.LoginButton
         android:id="@+id/btnFacebook"
-        android:layout_width="150dp"
+        android:layout_width="@dimen/btnHeightStart"
         android:layout_height="@dimen/btnHeightStart"
         android:layout_margin="@dimen/marginLoginBtns"
-        android:text="Facebook"
-        app:layout_constraintBottom_toTopOf="@+id/btnAnnonymous"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/btnMicrosoft"
-        app:layout_constraintTop_toBottomOf="@+id/tilPassword"
-        app:layout_constraintVertical_chainStyle="packed" />
+        app:layout_constraintBottom_toTopOf="@+id/btnLogin"
+        app:layout_constraintEnd_toStartOf="@+id/btnAnnonymous"
+        app:layout_constraintStart_toEndOf="@+id/btnPhone"
+        app:layout_constraintTop_toBottomOf="@+id/tilPassword" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

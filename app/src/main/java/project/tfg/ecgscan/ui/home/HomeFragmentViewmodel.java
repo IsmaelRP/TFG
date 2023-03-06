@@ -11,6 +11,7 @@ import androidx.lifecycle.ViewModel;
 import project.tfg.ecgscan.base.DiagnosisListener;
 import project.tfg.ecgscan.base.Resource;
 import project.tfg.ecgscan.data.DiagnosisTask;
+import project.tfg.ecgscan.data.Event;
 import project.tfg.ecgscan.data.Repository;
 import project.tfg.ecgscan.data.local.model.Electro;
 
@@ -24,7 +25,7 @@ public class HomeFragmentViewmodel extends ViewModel {
     private LiveData<Resource<Long>> insertResult;
     private final MutableLiveData<Electro> insertTrigger = new MutableLiveData<>();
 
-    private final MutableLiveData<String> diagnoseResponse = new MutableLiveData<>();
+    private final MutableLiveData<Event<String>>diagnoseResponse = new MutableLiveData<>();
 
     HomeFragmentViewmodel(Application application, Repository repository) {
         this.application = application;
@@ -41,16 +42,15 @@ public class HomeFragmentViewmodel extends ViewModel {
     }
 
 
-    public MutableLiveData<String> getDiagnoseResponse() {
+    public MutableLiveData<Event<String>> getDiagnoseResponse() {
         return diagnoseResponse;
     }
 
     public void  setDiagnoseResponse(String diagnose) {
-        diagnoseResponse.postValue(diagnose);
+        diagnoseResponse.postValue(new Event<>(diagnose));
     }
 
     public void diagnoseImage(Bitmap image) {
-
         DiagnosisTask task = new DiagnosisTask(new DiagnosisListener() {
 
             @Override

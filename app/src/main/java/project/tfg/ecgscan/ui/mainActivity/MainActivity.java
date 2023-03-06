@@ -5,6 +5,7 @@ import android.os.Bundle;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.navigation.NavController;
 import androidx.navigation.NavGraph;
 import androidx.navigation.NavInflater;
@@ -12,6 +13,7 @@ import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
 
+import com.facebook.CallbackManager;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -24,6 +26,10 @@ import project.tfg.ecgscan.ui.secondActivity.SecondActivity;
 public class MainActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
+    private CallbackManager callbackManager;
+
+    private MainActivityViewModel mainActivityViewModel;
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -45,16 +51,21 @@ public class MainActivity extends AppCompatActivity {
         if(currentUser != null){    //  Logged
             startActivity(new Intent(MainActivity.this, SecondActivity.class));
             finish();
-        }else{      //  Not logged
+        }else if(!mainActivityViewModel.getPhoneLogin().getValue().peekContent()){      //  Not logged
             setupNavigationGraph(R.navigation.navigation_graph, R.id.fragmentStart);
         }
     }
 
 
     private void setupViews() {
+        mainActivityViewModel = ViewModelProviders.of(this, new MainActivityViewModelFactory()).get(MainActivityViewModel.class);
+
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         navController.addOnDestinationChangedListener(
                 (controller, destination, arguments) -> setTitle(destination.getLabel()));
+
+        callbackManager = CallbackManager.Factory.create();
+
     }
 
     private void setupNavigationGraph(int graphId, int initialFragmentId) {
@@ -78,6 +89,12 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupActionBarWithNavController(this, navController);
 
         navController.setGraph(navGraph);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        callbackManager.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override
