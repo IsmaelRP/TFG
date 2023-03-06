@@ -1,2 +1,2 @@
-# FoodCal
-Proyecto final CFGS
+# ECGScan
+TFG de ingeniería informática de Ismael Raqi Picardo
