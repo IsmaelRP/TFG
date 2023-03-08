@@ -13,7 +13,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase;
 import project.tfg.ecgscan.data.local.model.BitmapConverter;
 import project.tfg.ecgscan.data.local.model.Electro;
 
-@Database(entities = {Electro.class}, version = 1)
+@Database(entities = {Electro.class}, version = 2)
 @TypeConverters({BitmapConverter.class})
 public abstract class AppDatabase extends RoomDatabase {
 

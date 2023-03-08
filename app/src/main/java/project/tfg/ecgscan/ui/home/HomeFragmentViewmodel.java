@@ -2,15 +2,11 @@ package project.tfg.ecgscan.ui.home;
 
 import android.app.Application;
 import android.graphics.Bitmap;
+import android.os.AsyncTask;
 
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
-import project.tfg.ecgscan.base.DiagnosisListener;
-import project.tfg.ecgscan.base.Resource;
-import project.tfg.ecgscan.data.DiagnosisTask;
 import project.tfg.ecgscan.data.Event;
 import project.tfg.ecgscan.data.Repository;
 import project.tfg.ecgscan.data.local.model.Electro;
@@ -22,25 +18,16 @@ public class HomeFragmentViewmodel extends ViewModel {
     private final Application application;
     private Repository repository;
 
-    private LiveData<Resource<Long>> insertResult;
-    private final MutableLiveData<Electro> insertTrigger = new MutableLiveData<>();
-
     private final MutableLiveData<Event<String>>diagnoseResponse = new MutableLiveData<>();
 
     HomeFragmentViewmodel(Application application, Repository repository) {
         this.application = application;
         this.repository = repository;
-        insertResult = Transformations.switchMap(insertTrigger, repository::insertElectro);
-    }
-
-    public LiveData<Resource<Long>> getInsertResult() {
-        return insertResult;
     }
 
     public void insertElectro(Electro electro) {
-        insertTrigger.setValue(electro);
+        repository.insertElectro(electro);
     }
-
 
     public MutableLiveData<Event<String>> getDiagnoseResponse() {
         return diagnoseResponse;
@@ -51,15 +38,18 @@ public class HomeFragmentViewmodel extends ViewModel {
     }
 
     public void diagnoseImage(Bitmap image) {
-        DiagnosisTask task = new DiagnosisTask(new DiagnosisListener() {
 
-            @Override
-            public void onDiagnoseComplete(String result) {
-                setDiagnoseResponse(result);
+        AsyncTask.THREAD_POOL_EXECUTOR.execute(() -> {
+            // TODO: implementar llamada a función Matlab con 'image'
+
+            try {
+                Thread.sleep(3000); // espera 5 segundos
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
-        }, image);
 
-        task.execute();
+            setDiagnoseResponse("TODO: implementar diagnóstico en Matlab");
+        });
 
 
     }

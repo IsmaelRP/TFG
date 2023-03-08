@@ -262,6 +262,8 @@ public class HomeFragment extends Fragment {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         LocalDateTime now = LocalDateTime.now();
 
+        Bitmap aux = image;
+
         vm.insertElectro(new Electro(0, image, name, dtf.format(now)));
     }
 
