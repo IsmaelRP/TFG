@@ -37,6 +37,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.Objects;
 
+import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
 import project.tfg.ecgscan.base.MsgDialog;
 import project.tfg.ecgscan.base.YesNoDialog;
 import project.tfg.ecgscan.data.ElectroImage;
@@ -46,6 +48,8 @@ import project.tfg.ecgscan.data.local.AppDatabase;
 import project.tfg.ecgscan.data.local.model.Electro;
 import project.tfg.ecgscan.databinding.FragmentHomeBinding;
 import project.tfg.ecgscan.ui.secondActivity.SecondActivityViewModel;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class HomeFragment extends Fragment {
 
@@ -101,6 +105,29 @@ public class HomeFragment extends Fragment {
         });
 
         vm.getDiagnoseResponse().observe(getViewLifecycleOwner(), v -> updateDiagnose(v));
+
+        //String url = "http://IP_EXTERNA:PUERTO/API/";
+        String url = "http://10.0.2.2:9910/Test/";
+
+        // TODO: PARA INTERCEPTAR Y TESTEAR
+
+        HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
+
+        // Configurar nivel de logging deseado
+        logging.setLevel(HttpLoggingInterceptor.Level.BODY);
+
+        // Añadir interceptor a OkHttp
+        OkHttpClient.Builder httpClientBuilder = new OkHttpClient.Builder();
+        httpClientBuilder.addInterceptor(logging);
+        OkHttpClient client = httpClientBuilder.build();
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(url)
+                .client(client)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        vm.setApiService(retrofit);
     }
 
     private void updateDiagnose(Event<String> diag) {
