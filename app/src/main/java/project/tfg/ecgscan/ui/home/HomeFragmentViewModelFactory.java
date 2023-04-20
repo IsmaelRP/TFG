@@ -11,11 +11,9 @@ import project.tfg.ecgscan.data.Repository;
 public class HomeFragmentViewModelFactory implements ViewModelProvider.Factory {
 
 
-    private final Application application;
     private final Repository repository;
 
     public HomeFragmentViewModelFactory(@NonNull Application application, @NonNull Repository repository) {
-        this.application = application;
         this.repository = repository;
     }
 
@@ -24,7 +22,7 @@ public class HomeFragmentViewModelFactory implements ViewModelProvider.Factory {
     @Override
     public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
         if (modelClass.isAssignableFrom(HomeFragmentViewmodel.class)) {
-            return (T) new HomeFragmentViewmodel(application, repository);
+            return (T) new HomeFragmentViewmodel(repository);
         } else {
             throw new IllegalArgumentException("Wrong viewModel class");
         }

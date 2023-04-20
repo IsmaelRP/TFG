@@ -1,14 +1,12 @@
 package project.tfg.ecgscan.ui.home;
 
-import android.app.Application;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.os.AsyncTask;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
-
-import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,18 +26,14 @@ import retrofit2.Retrofit;
 public class HomeFragmentViewmodel extends ViewModel {
 
 
-    private final Application application;
-    private Repository repository;
-    private Gson gson;
+    private final Repository repository;
 
     private final MutableLiveData<Event<String>>diagnoseResponse = new MutableLiveData<>();
 
     private final MutableLiveData<ApiService>apiService = new MutableLiveData<>();
 
-    HomeFragmentViewmodel(Application application, Repository repository) {
-        this.application = application;
+    HomeFragmentViewmodel(Repository repository) {
         this.repository = repository;
-        gson = new Gson();
     }
 
     public void insertElectro(Electro electro) {
@@ -62,7 +56,8 @@ public class HomeFragmentViewmodel extends ViewModel {
                 setDiagnoseResponse("API NO INICIALIZADA");
             }else{
                 int[] imageTranslated = bitmapToSimpleArray(image);
-                List<Integer> mwdata = new ArrayList<Integer>(imageTranslated.length);
+
+                List<Integer> mwdata = new ArrayList<>(imageTranslated.length);
 
                 for (int i : imageTranslated) {
                     mwdata.add(i);
@@ -77,13 +72,6 @@ public class HomeFragmentViewmodel extends ViewModel {
                 requestMatlabDiagnose(requestBody);
             }
 
-            /*try {
-                Thread.sleep(3000); // espera 5 segundos
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-             */
 
         });
 
@@ -106,7 +94,6 @@ public class HomeFragmentViewmodel extends ViewModel {
             @Override
             public void onResponse(Call<ApiResponse> call, @NonNull Response<ApiResponse> response) {
                 if (response.isSuccessful()) {
-
                     setDiagnoseResponse(response.body().getLhs().get(0).getMwdata()[0]);
 
                 } else {
@@ -139,18 +126,19 @@ public class HomeFragmentViewmodel extends ViewModel {
             for (int j = 0; j < img.getWidth(); j++) {
                 auxColor = img.getPixel(j, i);
 
-                pixels[i][j][0] = (auxColor >> 16) & 0xff;
-                pixels[i][j][1] = (auxColor >> 8) & 0xff;
-                pixels[i][j][2] = auxColor & 0xff;
+                pixels[i][j][0] = Color.red(auxColor);
+                pixels[i][j][1] = Color.green(auxColor);
+                pixels[i][j][2] = Color.blue(auxColor);
             }
         }
 
         flatPixels = new int[height * width * 3];
+
         idx = 0;
-        for (int i = 0; i < height; i++) {
+        for (int i = 0; i < 3; i++) {
             for (int j = 0; j < width; j++) {
-                for (int k = 0; k < 3; k++) {
-                    flatPixels[idx++] = pixels[i][j][k];
+                for (int k = 0; k < height; k++) {
+                    flatPixels[idx++] = pixels[k][j][i];
                 }
             }
         }

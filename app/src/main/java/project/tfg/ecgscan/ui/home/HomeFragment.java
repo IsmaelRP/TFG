@@ -211,7 +211,6 @@ public class HomeFragment extends Fragment {
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
                 if (result.getResultCode() == Activity.RESULT_OK) {
-                    startImageFunctionality(image);
 
                     if (result.getData().getExtras() != null) {
                         image = (Bitmap) result.getData().getExtras().get("data");
@@ -232,7 +231,7 @@ public class HomeFragment extends Fragment {
                             System.out.println("Error handling media files");
                         }
                     }
-
+                    startImageFunctionality(image);
 
                     Date date = new Date();
                     SimpleDateFormat df = new SimpleDateFormat("dd/MM/yy");
