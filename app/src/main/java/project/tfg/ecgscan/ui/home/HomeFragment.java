@@ -1,11 +1,22 @@
 package project.tfg.ecgscan.ui.home;
 
+import static android.app.Activity.RESULT_OK;
+
+import static com.facebook.FacebookSdk.getApplicationContext;
+
+import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
+import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +26,8 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.navigation.NavController;
@@ -27,8 +40,12 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.theartofdev.edmodo.cropper.CropImage;
+import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -83,10 +100,18 @@ public class HomeFragment extends Fragment {
 
 
     private void setupViews(View view) {
+        b.txtDiagnosisData.setMovementMethod(new ScrollingMovementMethod());
+
         navController = Objects.requireNonNull(Navigation.findNavController(view));
 
         secondVM = ViewModelProviders.of(requireActivity()).get(SecondActivityViewModel.class);
         secondVM.getNavigateToList().observe(getViewLifecycleOwner(), this::navigateToTabs);
+        secondVM.getCrop().observe(getViewLifecycleOwner(), v -> {
+            if(v.getContentIfNotHandled() != null){
+                startImageFunctionality(v.peekContent());
+            }
+
+        });
         b.btnScan.setOnClickListener(v -> dispatchTakePictureIntent(MediaStore.ACTION_IMAGE_CAPTURE));
         b.btnUpload.setOnClickListener(v -> dispatchSelectPictureIntent());
 
@@ -104,13 +129,14 @@ public class HomeFragment extends Fragment {
             startImageFunctionality(v.peekContent().getImage());
         });
 
+
         vm.getDiagnoseResponse().observe(getViewLifecycleOwner(), v -> updateDiagnose(v));
 
         //String url = "http://IP_EXTERNA:PUERTO/API/";
         String url = "http://10.0.2.2:9910/Test/";
 
-        // TODO: PARA INTERCEPTAR Y TESTEAR
-
+        // PARA INTERCEPTAR Y TESTEAR
+        /*
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
 
         // Configurar nivel de logging deseado
@@ -121,9 +147,11 @@ public class HomeFragment extends Fragment {
         httpClientBuilder.addInterceptor(logging);
         OkHttpClient client = httpClientBuilder.build();
 
+         */
+
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(url)
-                .client(client)
+                //.client(client)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
@@ -134,13 +162,14 @@ public class HomeFragment extends Fragment {
         if(!diag.hasBeenHandled()){
             b.txtDiagnosisData.setText(diag.getContentIfNotHandled());
             progressDialog.dismiss();
-            b.imageView.setImageBitmap(image);
+            //b.imageView.setImageBitmap(image);
         }
 
     }
 
 
-    private void startImageFunctionality(Bitmap image) {
+    public void startImageFunctionality(Bitmap image) {
+        this.image = image;
         progressDialog = new ProgressDialog(requireContext());
         progressDialog.setMessage("Diagnosing the image...");
         progressDialog.setCancelable(false);
@@ -210,14 +239,37 @@ public class HomeFragment extends Fragment {
     private ActivityResultLauncher<Intent> imageCallback = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
-                if (result.getResultCode() == Activity.RESULT_OK) {
+                if (result.getResultCode() == RESULT_OK) {
 
+                    Uri uriImage = null;
                     if (result.getData().getExtras() != null) {
                         image = (Bitmap) result.getData().getExtras().get("data");
 
                         if (!FirebaseAuth.getInstance().getCurrentUser().isAnonymous()){
                             launchYesNoDialog();
                         }
+                        //uriImage = result.getData().getExtras().get("data").get);
+                        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                            ActivityCompat.requestPermissions(requireActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 162);
+                        }
+                        // Create a file to save the image
+
+                        ContextWrapper cw = new ContextWrapper(getApplicationContext());
+                        File directory = cw.getDir("imageDir", Context.MODE_PRIVATE);
+                        File imageFile = new File(directory,"image.png");
+
+
+                        try {
+                            // Save the image with max quality
+                            FileOutputStream fos = new FileOutputStream(imageFile);
+                            image.compress(Bitmap.CompressFormat.PNG, 100, fos);
+                            fos.flush();
+                            fos.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                        uriImage = Uri.fromFile(imageFile);
 
                     } else {
                         try {
@@ -226,12 +278,23 @@ public class HomeFragment extends Fragment {
                             if (!FirebaseAuth.getInstance().getCurrentUser().isAnonymous()){
                                 launchYesNoDialog();
                             }
+                            uriImage = result.getData().getData();
 
                         } catch (IOException e) {
                             System.out.println("Error handling media files");
                         }
                     }
-                    startImageFunctionality(image);
+
+
+                    //b.cropImageView.setImageUriAsync(uriImage);
+                    //Intent intent = new Intent(getActivity(), Crop.class);
+                    //startActivity(intent);
+                    CropImage.activity(uriImage)
+                            .setOutputCompressFormat(Bitmap.CompressFormat.PNG)
+                            .setOutputCompressQuality(100)
+                            .start(requireActivity());
+
+                    //startImageFunctionality(image);
 
                     Date date = new Date();
                     SimpleDateFormat df = new SimpleDateFormat("dd/MM/yy");
@@ -324,5 +387,7 @@ public class HomeFragment extends Fragment {
         });
 
     }
+
+
 
 }

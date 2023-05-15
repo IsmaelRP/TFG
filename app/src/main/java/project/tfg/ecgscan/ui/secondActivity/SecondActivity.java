@@ -2,7 +2,11 @@ package project.tfg.ecgscan.ui.secondActivity;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -31,10 +35,14 @@ import com.google.firebase.FirebaseOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.theartofdev.edmodo.cropper.CropImage;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Objects;
 
 import project.tfg.ecgscan.R;
+import project.tfg.ecgscan.ui.home.HomeFragment;
 import project.tfg.ecgscan.ui.mainActivity.MainActivity;
 
 public class SecondActivity extends AppCompatActivity {
@@ -227,6 +235,30 @@ public class SecondActivity extends AppCompatActivity {
         return true;
     }
 
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
+            CropImage.ActivityResult result = CropImage.getActivityResult(data);
+            if (resultCode == RESULT_OK) {
+                Uri croppedImageUri = result.getUri();
+                try {
+                    InputStream inputStream = getContentResolver().openInputStream(croppedImageUri);
+                    Bitmap croppedImage = BitmapFactory.decodeStream(inputStream);
+                    inputStream.close();
+
+                    secondActivityViewModel.setCroppedBitmap(croppedImage);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
+                Exception error = result.getError();
+                Toast.makeText(this, error + "", Toast.LENGTH_LONG).show();
+            }
+        }
+    }
 
 
 

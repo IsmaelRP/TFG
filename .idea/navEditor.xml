@@ -17,12 +17,16 @@
                             <option name="y" value="-40" />
                           </Point>
                         </option>
+                        <option name="myPositions">
+                          <map>
+                            <entry key="desCloudToHome">
+                              <value>
+                                <LayoutPositions />
+                              </value>
+                            </entry>
+                          </map>
+                        </option>
                       </LayoutPositions>
-                    </value>
-                  </entry>
-                  <entry key="global_to_list">
-                    <value>
-                      <LayoutPositions />
                     </value>
                   </entry>
                   <entry key="homeFragment">
@@ -36,7 +40,7 @@
                         </option>
                         <option name="myPositions">
                           <map>
-                            <entry key="desHomeToList">
+                            <entry key="desHomeToCrop">
                               <value>
                                 <LayoutPositions />
                               </value>
@@ -60,6 +64,15 @@
                             <option name="y" value="396" />
                           </Point>
                         </option>
+                        <option name="myPositions">
+                          <map>
+                            <entry key="desLocalToHome">
+                              <value>
+                                <LayoutPositions />
+                              </value>
+                            </entry>
+                          </map>
+                        </option>
                       </LayoutPositions>
                     </value>
                   </entry>
@@ -71,6 +84,15 @@
                             <option name="x" value="12" />
                             <option name="y" value="12" />
                           </Point>
+                        </option>
+                        <option name="myPositions">
+                          <map>
+                            <entry key="desSettingsToTabs">
+                              <value>
+                                <LayoutPositions />
+                              </value>
+                            </entry>
+                          </map>
                         </option>
                       </LayoutPositions>
                     </value>
