@@ -1,11 +1,18 @@
 package project.tfg.ecgscan.ui.home;
 
+import static com.facebook.FacebookSdk.getApplicationContext;
+import static com.facebook.FacebookSdk.getCacheDir;
+
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +22,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.navigation.NavController;
@@ -27,18 +35,25 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.yalantis.ucrop.UCrop;
+import com.yalantis.ucrop.model.AspectRatio;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Objects;
 
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
+import project.tfg.ecgscan.R;
 import project.tfg.ecgscan.base.MsgDialog;
 import project.tfg.ecgscan.base.YesNoDialog;
 import project.tfg.ecgscan.data.ElectroImage;
@@ -81,8 +96,8 @@ public class HomeFragment extends Fragment {
     }
 
 
-
     private void setupViews(View view) {
+        b.txtDiagnosisData.setMovementMethod(new ScrollingMovementMethod());
         navController = Objects.requireNonNull(Navigation.findNavController(view));
 
         secondVM = ViewModelProviders.of(requireActivity()).get(SecondActivityViewModel.class);
@@ -91,6 +106,12 @@ public class HomeFragment extends Fragment {
         b.btnUpload.setOnClickListener(v -> dispatchSelectPictureIntent());
 
         secondVM.getFirebaseStorage().observe(getViewLifecycleOwner(), this::updateStorage);
+        secondVM.getCrop().observe(getViewLifecycleOwner(), v -> {
+            if(v.getContentIfNotHandled() != null){
+                startImageFunctionality(v.peekContent());
+            }
+
+        });
 
         vm = ViewModelProviders.of(this,
                         new HomeFragmentViewModelFactory(requireActivity().getApplication(), new RepositoryImpl(
@@ -109,8 +130,8 @@ public class HomeFragment extends Fragment {
         //String url = "http://IP_EXTERNA:PUERTO/API/";
         String url = "http://10.0.2.2:9910/Test/";
 
-        // TODO: PARA INTERCEPTAR Y TESTEAR
-
+        // PARA INTERCEPTAR Y TESTEAR
+        /*
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
 
         // Configurar nivel de logging deseado
@@ -120,10 +141,10 @@ public class HomeFragment extends Fragment {
         OkHttpClient.Builder httpClientBuilder = new OkHttpClient.Builder();
         httpClientBuilder.addInterceptor(logging);
         OkHttpClient client = httpClientBuilder.build();
-
+         */
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(url)
-                .client(client)
+                //.client(client)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
@@ -131,16 +152,17 @@ public class HomeFragment extends Fragment {
     }
 
     private void updateDiagnose(Event<String> diag) {
-        if(!diag.hasBeenHandled()){
+        if (!diag.hasBeenHandled()) {
             b.txtDiagnosisData.setText(diag.getContentIfNotHandled());
             progressDialog.dismiss();
-            b.imageView.setImageBitmap(image);
+            //b.imageView.setImageBitmap(image);
         }
 
     }
 
 
     private void startImageFunctionality(Bitmap image) {
+        this.image = image;
         progressDialog = new ProgressDialog(requireContext());
         progressDialog.setMessage("Diagnosing the image...");
         progressDialog.setCancelable(false);
@@ -159,7 +181,7 @@ public class HomeFragment extends Fragment {
         b.txtDiagnosisData.setVisibility(View.VISIBLE);
         b.txtEmptyDiag.setVisibility(View.INVISIBLE);
 
-        if (!electro.peekContent().getName().isEmpty()){
+        if (!electro.peekContent().getName().isEmpty()) {
             b.txtName.setVisibility(View.VISIBLE);
             b.txtDate.setVisibility(View.VISIBLE);
 
@@ -177,11 +199,11 @@ public class HomeFragment extends Fragment {
     }
 
     private void navigateToTabs(Event<Boolean> booleanEvent) {
-        if (booleanEvent.getContentIfNotHandled() != null){
+        if (booleanEvent.getContentIfNotHandled() != null) {
 
-            if (FirebaseAuth.getInstance().getCurrentUser().isAnonymous()){
+            if (FirebaseAuth.getInstance().getCurrentUser().isAnonymous()) {
                 Toast.makeText(getContext(), "Error, anonymous users cannot access to lists", Toast.LENGTH_LONG).show();
-            }else{
+            } else {
                 navController.navigate(HomeFragmentDirections.desHomeToTabs());
             }
 
@@ -211,19 +233,49 @@ public class HomeFragment extends Fragment {
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
                 if (result.getResultCode() == Activity.RESULT_OK) {
+                    Uri uriCrop = null;
 
                     if (result.getData().getExtras() != null) {
                         image = (Bitmap) result.getData().getExtras().get("data");
 
-                        if (!FirebaseAuth.getInstance().getCurrentUser().isAnonymous()){
+                        FileOutputStream outputStream = null;
+
+                        try {
+                            File internalStorageDir = requireActivity().getFilesDir();
+
+                            String fileName = "crop.jpg";
+                            File tempFile = new File(internalStorageDir, fileName);
+
+                            outputStream = new FileOutputStream(tempFile);
+
+                            // Comprime y guarda el bitmap en el archivo
+                            image.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+
+                            uriCrop = Uri.fromFile(tempFile);
+                        } catch (FileNotFoundException e) {
+                            Toast.makeText(getContext(), "Error cropping image (file exception)", Toast.LENGTH_LONG).show();
+                        }finally {
+                            // Cierra el FileOutputStream
+                            if (outputStream != null){
+                                try {
+                                    outputStream.close();
+                                } catch (IOException e) {
+                                    Toast.makeText(getContext(), "Error cropping image (file exception)", Toast.LENGTH_LONG).show();
+                                }
+                            }
+                        }
+
+
+                        if (!FirebaseAuth.getInstance().getCurrentUser().isAnonymous()) {
                             launchYesNoDialog();
                         }
 
                     } else {
                         try {
                             image = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), result.getData().getData());
+                            uriCrop = result.getData().getData();
 
-                            if (!FirebaseAuth.getInstance().getCurrentUser().isAnonymous()){
+                            if (!FirebaseAuth.getInstance().getCurrentUser().isAnonymous()) {
                                 launchYesNoDialog();
                             }
 
@@ -231,7 +283,8 @@ public class HomeFragment extends Fragment {
                             System.out.println("Error handling media files");
                         }
                     }
-                    startImageFunctionality(image);
+
+                    startCropActivity(uriCrop);
 
                     Date date = new Date();
                     SimpleDateFormat df = new SimpleDateFormat("dd/MM/yy");
@@ -241,13 +294,40 @@ public class HomeFragment extends Fragment {
             });
 
 
+    private void startCropActivity(Uri sourceUri) {
+        String destinationFileName = "cropped_image.jpg"; // Nombre del archivo de imagen recortada
+
+        // Obtener la ruta de los archivos internos de la aplicación
+        File internalStorageDir = requireActivity().getFilesDir();
+        File destinationFile = new File(internalStorageDir, destinationFileName);
+        Uri destinationUri = Uri.fromFile(destinationFile);
+
+        UCrop.Options options = new UCrop.Options();
+        options.setCompressionQuality(80); // Configura la calidad de compresión de la imagen recortada (0-100)
+        options.setToolbarColor(ContextCompat.getColor(requireContext(), R.color.splashbg)); // Personaliza el color de la barra de herramientas de UCrop
+        options.setFreeStyleCropEnabled(true);
+
+        options.setAspectRatioOptions(0,
+                new AspectRatio("10:2", 10.0f, 2.0f),
+                new AspectRatio("20:2", 20.0f, 2.0f),
+                new AspectRatio("30:2", 30.0f, 2.0f),
+                new AspectRatio("40:2", 40.0f, 2.0f),
+                new AspectRatio("50:2", 50.0f, 2.0f));
+
+
+        UCrop.of(sourceUri, destinationUri)
+                .withOptions(options)
+                .start(requireActivity());
+    }
+
+
     private void launchYesNoDialog() {
         String msg;
         cloud = secondVM.getPreferencesCloud().getValue().peekContent();
 
-        if (cloud){
+        if (cloud) {
             msg = "Do you want to upload the image to the cloud?";
-        }else{
+        } else {
             msg = "Do you want to save the image on your phone?";
         }
 
@@ -276,10 +356,10 @@ public class HomeFragment extends Fragment {
 
     }
 
-    private void saveImage(String filename){
-        if (cloud){
+    private void saveImage(String filename) {
+        if (cloud) {
             uploadImageToFirebase(filename);
-        }else{
+        } else {
             saveToLocal(filename);
         }
     }

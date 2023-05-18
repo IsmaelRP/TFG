@@ -27,18 +27,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="250dp"
-        android:layout_height="250dp"
-        android:layout_marginTop="65dp"
-        android:adjustViewBounds="true"
-        android:scaleType="centerCrop"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:srcCompat="@tools:sample/avatars" />
-
     <TextView
         android:id="@+id/txtEmptyDiag"
         android:layout_width="wrap_content"
@@ -47,7 +35,7 @@
         android:textColor="@color/black"
         android:textSize="23dp"
         android:visibility="visible"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/btnUpload"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -81,14 +69,14 @@
         android:id="@+id/txtDiagnosis"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="80dp"
         android:layout_marginLeft="@dimen/margin_homeTxts"
-        android:layout_marginTop="@dimen/margin_homeTxts"
         android:text="Diagnosis:"
         android:textColor="@color/black"
         android:textSize="20dp"
         android:visibility="invisible"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtDate" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/txtNameData"
@@ -114,15 +102,19 @@
     <TextView
         android:id="@+id/txtDiagnosisData"
         android:layout_width="295dp"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/margin_homeTxts"
+        android:layout_height="0dp"
+        android:layout_marginStart="@dimen/margin_homeTxts"
+        android:layout_marginTop="80dp"
+        android:layout_marginEnd="@dimen/margin_homeTxts"
         android:text=""
+        android:scrollbars="vertical"
         android:textSize="20dp"
         android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@+id/txtEmptyDiag"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_weight="1"
         app:layout_constraintStart_toEndOf="@+id/txtDiagnosis"
-        app:layout_constraintTop_toBottomOf="@+id/txtDateData" />
+        app:layout_constraintTop_toTopOf="parent" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

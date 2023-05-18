@@ -6,8 +6,8 @@ import retrofit2.http.POST;
 
 public interface ApiService {
 
-    //@POST("getDiagnoseMsg")
-    @POST("sumar")
+    @POST("getDiagnoseMsg")
+    //@POST("sumar")
     Call<ApiResponse> getMatlabDiagnose(@Body RequestBody requestBody);
 
 }

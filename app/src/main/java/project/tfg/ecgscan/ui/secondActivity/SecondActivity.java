@@ -2,6 +2,9 @@ package project.tfg.ecgscan.ui.secondActivity;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -31,7 +34,9 @@ import com.google.firebase.FirebaseOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.yalantis.ucrop.UCrop;
 
+import java.io.FileNotFoundException;
 import java.util.Objects;
 
 import project.tfg.ecgscan.R;
@@ -227,6 +232,27 @@ public class SecondActivity extends AppCompatActivity {
         return true;
     }
 
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode == RESULT_OK && requestCode == UCrop.REQUEST_CROP) {
+            final Uri resultUri = UCrop.getOutput(data);
+            try {
+                // Obtener el Bitmap a partir de la Uri
+                Bitmap bitmap = BitmapFactory.decodeStream(this.getContentResolver().openInputStream(resultUri));
+                secondActivityViewModel.setCroppedBitmap(bitmap);
+
+            } catch (FileNotFoundException e) {
+                Toast.makeText(this, "Error, cropping image (file exception)", Toast.LENGTH_LONG).show();
+            }
+
+
+        } else if (resultCode == UCrop.RESULT_ERROR) {
+            Toast.makeText(this, "Error, cropping image (library exception)", Toast.LENGTH_LONG).show();
+        }
+    }
 
 
 
