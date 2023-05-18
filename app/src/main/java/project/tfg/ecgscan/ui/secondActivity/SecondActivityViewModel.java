@@ -3,6 +3,7 @@ package project.tfg.ecgscan.ui.secondActivity;
 import android.graphics.Bitmap;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
@@ -29,10 +30,9 @@ public class SecondActivityViewModel extends ViewModel {
 
     private final MutableLiveData<Event<ElectroImage>> actualElectro = new MutableLiveData<>();
 
+    private final MutableLiveData<Event<Bitmap>> crop = new MutableLiveData<>();
 
     private final ArrayList<ElectroImage> list = new ArrayList<>();
-
-    private final MutableLiveData<Event<Bitmap>> crop = new MutableLiveData<>();
 
 
     public MutableLiveData<Event<Boolean>> getNavigateToList() {
@@ -120,4 +120,6 @@ public class SecondActivityViewModel extends ViewModel {
     public MutableLiveData<Event<Bitmap>> getCrop(){
         return crop;
     }
+
+
 }

@@ -3,11 +3,6 @@ pluginManagement {
         gradlePluginPortal()
         google()
         mavenCentral()
-        jcenter() {
-            content {
-                includeModule("com.theartofdev.edmodo", "android-image-cropper")
-            }
-        }
     }
 }
 dependencyResolutionManagement {
@@ -15,11 +10,8 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        jcenter() {
-            content {
-                includeModule("com.theartofdev.edmodo", "android-image-cropper")
-            }
-        }
+        jcenter()
+        maven { url 'https://jitpack.io' }
     }
 }
 rootProject.name = "ECGScan"

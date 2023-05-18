@@ -1,20 +1,16 @@
 package project.tfg.ecgscan.ui.home;
 
-import static android.app.Activity.RESULT_OK;
-
 import static com.facebook.FacebookSdk.getApplicationContext;
+import static com.facebook.FacebookSdk.getCacheDir;
 
-import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
@@ -26,7 +22,6 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
@@ -40,22 +35,25 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.theartofdev.edmodo.cropper.CropImage;
-import com.theartofdev.edmodo.cropper.CropImageView;
+import com.yalantis.ucrop.UCrop;
+import com.yalantis.ucrop.model.AspectRatio;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Objects;
 
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
+import project.tfg.ecgscan.R;
 import project.tfg.ecgscan.base.MsgDialog;
 import project.tfg.ecgscan.base.YesNoDialog;
 import project.tfg.ecgscan.data.ElectroImage;
@@ -98,24 +96,22 @@ public class HomeFragment extends Fragment {
     }
 
 
-
     private void setupViews(View view) {
         b.txtDiagnosisData.setMovementMethod(new ScrollingMovementMethod());
-
         navController = Objects.requireNonNull(Navigation.findNavController(view));
 
         secondVM = ViewModelProviders.of(requireActivity()).get(SecondActivityViewModel.class);
         secondVM.getNavigateToList().observe(getViewLifecycleOwner(), this::navigateToTabs);
+        b.btnScan.setOnClickListener(v -> dispatchTakePictureIntent(MediaStore.ACTION_IMAGE_CAPTURE));
+        b.btnUpload.setOnClickListener(v -> dispatchSelectPictureIntent());
+
+        secondVM.getFirebaseStorage().observe(getViewLifecycleOwner(), this::updateStorage);
         secondVM.getCrop().observe(getViewLifecycleOwner(), v -> {
             if(v.getContentIfNotHandled() != null){
                 startImageFunctionality(v.peekContent());
             }
 
         });
-        b.btnScan.setOnClickListener(v -> dispatchTakePictureIntent(MediaStore.ACTION_IMAGE_CAPTURE));
-        b.btnUpload.setOnClickListener(v -> dispatchSelectPictureIntent());
-
-        secondVM.getFirebaseStorage().observe(getViewLifecycleOwner(), this::updateStorage);
 
         vm = ViewModelProviders.of(this,
                         new HomeFragmentViewModelFactory(requireActivity().getApplication(), new RepositoryImpl(
@@ -128,7 +124,6 @@ public class HomeFragment extends Fragment {
             updateUI(v);
             startImageFunctionality(v.peekContent().getImage());
         });
-
 
         vm.getDiagnoseResponse().observe(getViewLifecycleOwner(), v -> updateDiagnose(v));
 
@@ -146,9 +141,7 @@ public class HomeFragment extends Fragment {
         OkHttpClient.Builder httpClientBuilder = new OkHttpClient.Builder();
         httpClientBuilder.addInterceptor(logging);
         OkHttpClient client = httpClientBuilder.build();
-
          */
-
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(url)
                 //.client(client)
@@ -159,7 +152,7 @@ public class HomeFragment extends Fragment {
     }
 
     private void updateDiagnose(Event<String> diag) {
-        if(!diag.hasBeenHandled()){
+        if (!diag.hasBeenHandled()) {
             b.txtDiagnosisData.setText(diag.getContentIfNotHandled());
             progressDialog.dismiss();
             //b.imageView.setImageBitmap(image);
@@ -168,7 +161,7 @@ public class HomeFragment extends Fragment {
     }
 
 
-    public void startImageFunctionality(Bitmap image) {
+    private void startImageFunctionality(Bitmap image) {
         this.image = image;
         progressDialog = new ProgressDialog(requireContext());
         progressDialog.setMessage("Diagnosing the image...");
@@ -188,7 +181,7 @@ public class HomeFragment extends Fragment {
         b.txtDiagnosisData.setVisibility(View.VISIBLE);
         b.txtEmptyDiag.setVisibility(View.INVISIBLE);
 
-        if (!electro.peekContent().getName().isEmpty()){
+        if (!electro.peekContent().getName().isEmpty()) {
             b.txtName.setVisibility(View.VISIBLE);
             b.txtDate.setVisibility(View.VISIBLE);
 
@@ -206,11 +199,11 @@ public class HomeFragment extends Fragment {
     }
 
     private void navigateToTabs(Event<Boolean> booleanEvent) {
-        if (booleanEvent.getContentIfNotHandled() != null){
+        if (booleanEvent.getContentIfNotHandled() != null) {
 
-            if (FirebaseAuth.getInstance().getCurrentUser().isAnonymous()){
+            if (FirebaseAuth.getInstance().getCurrentUser().isAnonymous()) {
                 Toast.makeText(getContext(), "Error, anonymous users cannot access to lists", Toast.LENGTH_LONG).show();
-            }else{
+            } else {
                 navController.navigate(HomeFragmentDirections.desHomeToTabs());
             }
 
@@ -239,62 +232,59 @@ public class HomeFragment extends Fragment {
     private ActivityResultLauncher<Intent> imageCallback = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
-                if (result.getResultCode() == RESULT_OK) {
+                if (result.getResultCode() == Activity.RESULT_OK) {
+                    Uri uriCrop = null;
 
-                    Uri uriImage = null;
                     if (result.getData().getExtras() != null) {
                         image = (Bitmap) result.getData().getExtras().get("data");
 
-                        if (!FirebaseAuth.getInstance().getCurrentUser().isAnonymous()){
-                            launchYesNoDialog();
-                        }
-                        //uriImage = result.getData().getExtras().get("data").get);
-                        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                            ActivityCompat.requestPermissions(requireActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 162);
-                        }
-                        // Create a file to save the image
-
-                        ContextWrapper cw = new ContextWrapper(getApplicationContext());
-                        File directory = cw.getDir("imageDir", Context.MODE_PRIVATE);
-                        File imageFile = new File(directory,"image.png");
-
+                        FileOutputStream outputStream = null;
 
                         try {
-                            // Save the image with max quality
-                            FileOutputStream fos = new FileOutputStream(imageFile);
-                            image.compress(Bitmap.CompressFormat.PNG, 100, fos);
-                            fos.flush();
-                            fos.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
+                            File internalStorageDir = requireActivity().getFilesDir();
+
+                            String fileName = "crop.jpg";
+                            File tempFile = new File(internalStorageDir, fileName);
+
+                            outputStream = new FileOutputStream(tempFile);
+
+                            // Comprime y guarda el bitmap en el archivo
+                            image.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+
+                            uriCrop = Uri.fromFile(tempFile);
+                        } catch (FileNotFoundException e) {
+                            Toast.makeText(getContext(), "Error cropping image (file exception)", Toast.LENGTH_LONG).show();
+                        }finally {
+                            // Cierra el FileOutputStream
+                            if (outputStream != null){
+                                try {
+                                    outputStream.close();
+                                } catch (IOException e) {
+                                    Toast.makeText(getContext(), "Error cropping image (file exception)", Toast.LENGTH_LONG).show();
+                                }
+                            }
                         }
 
-                        uriImage = Uri.fromFile(imageFile);
+
+                        if (!FirebaseAuth.getInstance().getCurrentUser().isAnonymous()) {
+                            launchYesNoDialog();
+                        }
 
                     } else {
                         try {
                             image = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), result.getData().getData());
+                            uriCrop = result.getData().getData();
 
-                            if (!FirebaseAuth.getInstance().getCurrentUser().isAnonymous()){
+                            if (!FirebaseAuth.getInstance().getCurrentUser().isAnonymous()) {
                                 launchYesNoDialog();
                             }
-                            uriImage = result.getData().getData();
 
                         } catch (IOException e) {
                             System.out.println("Error handling media files");
                         }
                     }
 
-
-                    //b.cropImageView.setImageUriAsync(uriImage);
-                    //Intent intent = new Intent(getActivity(), Crop.class);
-                    //startActivity(intent);
-                    CropImage.activity(uriImage)
-                            .setOutputCompressFormat(Bitmap.CompressFormat.PNG)
-                            .setOutputCompressQuality(100)
-                            .start(requireActivity());
-
-                    //startImageFunctionality(image);
+                    startCropActivity(uriCrop);
 
                     Date date = new Date();
                     SimpleDateFormat df = new SimpleDateFormat("dd/MM/yy");
@@ -304,13 +294,40 @@ public class HomeFragment extends Fragment {
             });
 
 
+    private void startCropActivity(Uri sourceUri) {
+        String destinationFileName = "cropped_image.jpg"; // Nombre del archivo de imagen recortada
+
+        // Obtener la ruta de los archivos internos de la aplicación
+        File internalStorageDir = requireActivity().getFilesDir();
+        File destinationFile = new File(internalStorageDir, destinationFileName);
+        Uri destinationUri = Uri.fromFile(destinationFile);
+
+        UCrop.Options options = new UCrop.Options();
+        options.setCompressionQuality(80); // Configura la calidad de compresión de la imagen recortada (0-100)
+        options.setToolbarColor(ContextCompat.getColor(requireContext(), R.color.splashbg)); // Personaliza el color de la barra de herramientas de UCrop
+        options.setFreeStyleCropEnabled(true);
+
+        options.setAspectRatioOptions(0,
+                new AspectRatio("10:2", 10.0f, 2.0f),
+                new AspectRatio("20:2", 20.0f, 2.0f),
+                new AspectRatio("30:2", 30.0f, 2.0f),
+                new AspectRatio("40:2", 40.0f, 2.0f),
+                new AspectRatio("50:2", 50.0f, 2.0f));
+
+
+        UCrop.of(sourceUri, destinationUri)
+                .withOptions(options)
+                .start(requireActivity());
+    }
+
+
     private void launchYesNoDialog() {
         String msg;
         cloud = secondVM.getPreferencesCloud().getValue().peekContent();
 
-        if (cloud){
+        if (cloud) {
             msg = "Do you want to upload the image to the cloud?";
-        }else{
+        } else {
             msg = "Do you want to save the image on your phone?";
         }
 
@@ -339,10 +356,10 @@ public class HomeFragment extends Fragment {
 
     }
 
-    private void saveImage(String filename){
-        if (cloud){
+    private void saveImage(String filename) {
+        if (cloud) {
             uploadImageToFirebase(filename);
-        }else{
+        } else {
             saveToLocal(filename);
         }
     }
@@ -387,7 +404,5 @@ public class HomeFragment extends Fragment {
         });
 
     }
-
-
 
 }
