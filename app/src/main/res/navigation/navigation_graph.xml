@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navigation_graph"
+    app:startDestination="@id/fragmentStart">
+
+    <fragment
+        android:id="@+id/fragmentStart"
+        android:name="project.tfg.ecgscan.ui.start.StartFragment"
+        android:label="ECGScan"
+        tools:layout="@layout/fragment_start" >
+        <action
+            android:id="@+id/desStartToLogin"
+            app:destination="@id/fragmentLogin"
+            app:enterAnim="@android:anim/slide_in_left"
+            app:exitAnim="@android:anim/fade_out" />
+        <action
+            android:id="@+id/desStartToRegister"
+            app:destination="@id/fragmentRegister"
+            app:enterAnim="@android:anim/slide_in_left"
+            app:exitAnim="@android:anim/fade_out" />
+        <action
+            android:id="@+id/desStartToAbout"
+            app:destination="@id/fragmentAbout"
+            app:enterAnim="@android:anim/slide_in_left"
+            app:exitAnim="@android:anim/fade_out" />
+    </fragment>
+    <fragment
+        android:id="@+id/fragmentLogin"
+        android:name="project.tfg.ecgscan.ui.login.LoginFragment"
+        android:label="Login" >
+        <action
+            android:id="@+id/desLoginToSecond"
+            app:destination="@id/secondActivity"
+            app:popUpTo="@navigation/main_graph"
+            app:launchSingleTop="true"
+            app:popUpToInclusive="true"/>
+    </fragment>
+    <fragment
+        android:id="@+id/fragmentRegister"
+        android:name="project.tfg.ecgscan.ui.register.RegisterFragment"
+        android:label="Register" >
+        <action
+            android:id="@+id/desRegisterToSecond"
+            app:destination="@id/secondActivity"
+            app:popUpTo="@navigation/main_graph"
+            app:launchSingleTop="true"
+            app:popUpToInclusive="true"/>
+    </fragment>
+    <fragment
+        android:id="@+id/fragmentAbout"
+        android:name="project.tfg.ecgscan.ui.about.AboutFragment"
+        android:label="About" />
+    <activity
+        android:id="@+id/secondActivity"
+        android:name="project.tfg.ecgscan.ui.secondActivity.SecondActivity"
+        android:label="SecondActivity" />
+</navigation>

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_graph"
+    app:startDestination="@id/homeFragment">
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="project.tfg.ecgscan.ui.home.HomeFragment"
+        android:label="ECGSCAN"
+        tools:layout="@layout/fragment_home">
+        <action
+            android:id="@+id/desHomeToTabs"
+            app:destination="@id/tabsListFragment"
+            app:enterAnim="@android:anim/slide_in_left"
+            app:exitAnim="@android:anim/fade_out"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/cloudListFragment"
+        android:name="project.tfg.ecgscan.ui.list.cloud.CloudListFragment"
+        android:label="@string/cloudListFragmentTitle"
+        tools:layout="@layout/fragment_list">
+        <action
+            android:id="@+id/desCloudToHome"
+            app:destination="@id/homeFragment"
+            app:enterAnim="@android:anim/slide_in_left"
+            app:exitAnim="@android:anim/fade_out"
+            app:popUpTo="@+id/homeFragment"
+            app:popUpToInclusive="true"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="project.tfg.ecgscan.ui.settings.SettingsFragment"
+        android:label="@string/settingsFragmentTitle"
+        >
+        <action
+            android:id="@+id/desSettingsToTabs"
+            app:destination="@id/tabsListFragment"
+            app:popUpTo="@+id/settingsFragment"
+            app:popUpToInclusive="true"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/tabsListFragment"
+        android:name="project.tfg.ecgscan.ui.tabsList.TabsListFragment"
+        android:label="Electro's list"
+        tools:layout="@layout/fragment_tabslist"/>
+
+    <fragment
+        android:id="@+id/localListFragment"
+        android:name="project.tfg.ecgscan.ui.list.local.LocalListFragment"
+        android:label="LocalListFragment"
+        tools:layout="@layout/fragment_list">
+
+        <action
+            android:id="@+id/desLocalToHome"
+            app:destination="@id/homeFragment"
+            app:enterAnim="@android:anim/slide_in_left"
+            app:exitAnim="@android:anim/fade_out"
+            app:popUpTo="@+id/homeFragment"
+            app:popUpToInclusive="true"/>
+    </fragment>
+
+</navigation>
