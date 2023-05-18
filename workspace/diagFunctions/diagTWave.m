@@ -1,17 +1,19 @@
 function msg = diagTWave(ecg)
     %% Calcula las dimensiones de la onda T para determinar parámetros correctos
-    %   Problema de 
-
+    %   Ondas T alta-dentada (hipercalemia, infarto agudo miocardio)
+    %   Ondas T invertidas (isquemia, embolia pulmonar, miocardiopatía hipertrófica, enfermedad general)
+    %   Ondas T planas (isquemia, desequilibrio electrolítico)
+    
 
     moda = mode(ecg);
 
     [~, posR, anchuraR] = findpeaks(ecg, 'MinPeakProminence', 20, 'MinPeakHeight', 60, 'MinPeakDistance', 120);
 
     % Para visualizar ************************************************************************************
-    subplot(4, 1, 1);
-    findpeaks(ecg, 'MinPeakProminence', 20, 'MinPeakHeight', 60, 'MinPeakDistance', 120);
-    title("Señal original");
-    hold on;
+    %subplot(4, 1, 1);
+    %findpeaks(ecg, 'MinPeakProminence', 20, 'MinPeakHeight', 60, 'MinPeakDistance', 120);
+    %title("Señal original");
+    %hold on;
 
     for i=length(posR):-1:1
         if i > 1
@@ -24,16 +26,16 @@ function msg = diagTWave(ecg)
         %plot(ecg, 'r');
 
     end
-    subplot(4, 1, 2);
-    plot(ecg, 'r');
-    title("Aislado de ondas T");
+    %subplot(4, 1, 2);
+    %plot(ecg, 'r');
+    %title("Aislado de ondas T");
     
     [picosT, posT, anchuraT] = findpeaks(smoothdata(ecg, 'movmean', 25), 'MinPeakDistance', 100, 'MaxPeakWidth', 40, 'MinPeakProminence', 5);
 
     % Para visualizar ****************************************
-    subplot(4, 1, 3);
-    findpeaks(smoothdata(ecg, 'movmean', 25), 'MinPeakDistance', 100, 'MaxPeakWidth', 40, 'MinPeakProminence', 5);
-    title("Suavizado y selección de ondas T");
+    %subplot(4, 1, 3);
+    %findpeaks(smoothdata(ecg, 'movmean', 25), 'MinPeakDistance', 100, 'MaxPeakWidth', 40, 'MinPeakProminence', 5);
+    %title("Suavizado y selección de ondas T");
 
     if length(posT) == length(posR)     % Posible onda T alta
         
@@ -64,9 +66,9 @@ function msg = diagTWave(ecg)
         picosInvertidos = findpeaks(ecg, 'MinPeakDistance', 100, 'MaxPeakWidth', 60, 'MinPeakProminence', 10);
 
         % Para visualizar ****************************************
-        subplot(4, 1, 4);
-        findpeaks(ecg, 'MinPeakDistance', 100, 'MaxPeakWidth', 60, 'MinPeakProminence', 10);
-        title("Inversa de la señal para diferenciar entre plana o inversa")
+        %subplot(4, 1, 4);
+        %findpeaks(ecg, 'MinPeakDistance', 100, 'MaxPeakWidth', 60, 'MinPeakProminence', 10);
+        %title("Inversa de la señal para diferenciar entre plana o inversa")
 
         if length(picosInvertidos) >= length(posR) * 0.6
             msg = "Onda T invertida, posible isquemia, embolia pulmonar, miocardiopatía hipertrófica o enfermedad general";

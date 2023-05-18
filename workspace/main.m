@@ -14,11 +14,11 @@ img = imcrop(img);
 % BORRAR
 
 try
-    %msg = getDiagnoseMsg(img)
+    msg = getDiagnoseMsg(img)
     
-    vector = getSignal(img);
+    %vector = getSignal(img);
     %diagPulseDiff(vector)  % Método 5
-    diagPWave(vector)      % Método 1
+    %diagPWave(vector)      % Método 1
     %diagQRSWave(vector)    % Método 3
     %diagPRWave(vector)     % Método 2
     %diagQTWave(vector)     % Método 4
