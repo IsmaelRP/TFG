@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "784049752308",
+    "firebase_url": "https://ecgscan-240b9-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "ecgscan-240b9",
+    "storage_bucket": "ecgscan-240b9.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:784049752308:android:ab77ff02b03aaf5d9ab6a1",
+        "android_client_info": {
+          "package_name": "project.tfg.ecgscan"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "784049752308-591j8pelqrfn7vu24r9b75ctlve6o9cf.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "project.tfg.ecgscan",
+            "certificate_hash": "3d0adebe233f81076c07c7563c2ea1d540820ccb"
+          }
+        },
+        {
+          "client_id": "784049752308-odq5lrqap24cqpp7g6nt3dabk5iscilo.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDgQU3c-aj-U-dlMeUa9HZa2NMCY7A5Rb4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "784049752308-elnlugtcmkbed3g1no6ihqs4nq21m79l.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
